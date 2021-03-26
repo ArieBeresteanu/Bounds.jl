@@ -1,0 +1,6 @@
+[deps]
+Bounds = "e2b0618d-add3-4e95-adc0-c6122c3013fe"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+Documenter = "~0.24"

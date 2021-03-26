@@ -1,0 +1,3 @@
+module Bounds
+
+end # module

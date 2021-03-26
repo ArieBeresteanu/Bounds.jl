@@ -1,0 +1,15 @@
+name = "Bounds"
+uuid = "e2b0618d-add3-4e95-adc0-c6122c3013fe"
+authors = ["Arie Beresteanu <arie@pitt.edu>"]
+version = "0.1.0"
+
+[deps]
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
+
+[compat]
+julia = "^1"
