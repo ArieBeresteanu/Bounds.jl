@@ -12,3 +12,5 @@
 [![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://ArieBeresteanu.github.io/Bounds.jl/stable)
 [![Documentation](https://img.shields.io/badge/docs-master-blue.svg)](https://ArieBeresteanu.github.io/Bounds.jl/dev)
 -->
+
+Implimenting partial identification estimators.
