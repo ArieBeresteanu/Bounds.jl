@@ -13,4 +13,4 @@
 [![Documentation](https://img.shields.io/badge/docs-master-blue.svg)](https://ArieBeresteanu.github.io/Bounds.jl/dev)
 -->
 
-Implementing partial identification estimators. This is a Julia version of a very old Stata and Matlab packages that I wrote with Chuck Manski when I was a student.
+Implementing partial identification estimators. This is a Julia version of a very old Stata and Matlab packages that I wrote with Chuck Manski when I was a student. This package is under development and is in its infancy. Comments, suggestions and help are, obviously welcome.
