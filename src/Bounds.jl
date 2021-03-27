@@ -31,4 +31,22 @@ function kdens(X::Vector{T},x0::T,h::T) where T<:AbstractFloat
     return f/(length(X)*h)
 end
 
+### Kernel regression estimation ###
+function kdens(Y::Vector{T},X::Vector{T},x0::T,h::T) where T<:AbstractFloat 
+    f = 0.0
+    m = 0.0
+    for x in x
+        temp = (x-x0)/h
+        df = epa(temp)
+        f +=df
+        m +=y*df
+    end
+    if f >0 
+        return m/f
+    else
+        return 0.0
+    end
+end
+
+
 end # module
