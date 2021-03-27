@@ -3,13 +3,26 @@ module Bounds
 using Statistics
 
 function silverman(x::Vector{T}) where T<:Real
+    # Silverman rule of thumb
     return 1.06*length(x)^(-0.2)*std(x)
 end
 
 function epa(x::T) where T<:Real
-    abs(x)<1 ? temp=x : temp=0.0
+    temp = min(abs(x),1.0)
     return 0.75*(1-temp^2)
 end
+
+function epa(x::T,x0::T,h::T) where T<:Real
+    temp = min (abs((x-x0)/h),1.0)
+    return 0.75*(1-temp^2)
+end
+
+function epa(x::T,x0::T) where T<:Real
+    h=silverman(x)
+    temp = min (abs((x-x0)/h),1.0)
+    return 0.75*(1-temp^2)
+end
+
 
 function kdens(X::Vector{T},x0::T,h::T) where T<:Real
     f = 0.0
