@@ -23,25 +23,24 @@ end
 
 ### Kernel density estimation ###
 function kdens(X::Vector{T},x0::T,h::T) where T<:AbstractFloat 
-    f = 0.0
-    for x in x
-        temp = (x-x0)/h
-        f +=epa(temp)
-    end
+    f = sum(epa.((X .- x0) ./ h))
     return f/(length(X)*h)
 end
 
 ### Kernel regression estimation ###
-function kdens(Y::Vector{T},X::Vector{T},x0::T,h::T) where T<:AbstractFloat 
+function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T) where T<:AbstractFloat 
     f = 0.0
     m = 0.0
-    for x in x
-        temp = (x-x0)/h
-        df = epa(temp)
-        f +=df
-        m +=y*df
-    end
-    if f >0 
+	nx=length(X)
+	ny=length(Y)
+	if nx != ny
+		error("length of Y and X do not match")
+	else
+		df = epa.((X .- x0) ./ h)
+		f = sum(df)
+		m = sum(Y.*df)
+	end
+	if f >0 
         return m/f
     else
         return 0.0
