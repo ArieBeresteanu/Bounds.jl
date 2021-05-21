@@ -10,25 +10,25 @@ function silverman(x::Vector{T}) where T<:Real
 end
 
 ### Epanechnikov Kernel function ###
-function epa(x::T,x0::T=0.0,h::T=1.0) where T<:AbstractFloat 
+function epa(x::T,x0::T=0.0,h::T=1.0) where T<:Real 
     temp = min(abs((x-x0)/h),1.0)
     return 0.75*(1.0-temp^2)
 end
 
-function epa(x::Vector{T},x0::T=0.0,h::T=1.0) where T<:AbstractFloat 
+function epa(x::Vector{T},x0::T=0.0,h::T=1.0) where T<:Real 
     temp = min.(norm.((x.-x0)./h),1.0)
     return 0.75*(1.0.-temp.^2)
 end
 
 
 ### Kernel density estimation ###
-function kdens(X::Vector{T},x0::T,h::T) where T<:AbstractFloat 
+function kdens(X::Vector{T},x0::T,h::T) where T<:Real 
     f = sum(epa.((X .- x0) ./ h))
     return f/(length(X)*h)
 end
 
 ### Kernel regression estimation ###
-function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T) where T<:AbstractFloat 
+function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T) where T<:Real 
     f = 0.0
     m = 0.0
 	nx=length(X)
