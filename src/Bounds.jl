@@ -3,6 +3,8 @@ module Bounds
 using Statistics
 using LinearAlgebra
 
+export SimpleBound
+
 ### Silverman Rule of Thumb for bandwidth selection ##
 function silverman(x::Vector{T}) where T<:Real
     # Silverman rule of thumb
@@ -47,5 +49,9 @@ function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T) where T<:Real
     end
 end
 
-
+struct SimpleBound
+	LB :: Float64
+	UB :: Float64
+	method :: String
+end
 end # module
