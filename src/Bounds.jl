@@ -12,11 +12,13 @@ function silverman(x::Vector{T}) where T<:Real
 end
 
 ### Epanechnikov Kernel function ###
+#     Version 1: X,x0 and h are scalars
 function epa(x::T,x0::T=0.0,h::T=1.0) where T<:Real 
     temp = min(abs((x-x0)/h),1.0)
     return 0.75*(1.0-temp^2)
 end
 
+#     Version 2: X is a vector, x0,h are scalars
 function epa(x::Vector{T},x0::T=0.0,h::T=1.0) where T<:Real 
     temp = min.(norm.((x.-x0)./h),1.0)
     return 0.75*(1.0.-temp.^2)
