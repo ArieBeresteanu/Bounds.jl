@@ -115,7 +115,6 @@ function treatment(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=
         res.yhat1 = count(y .* z .* (x .== x0))/nz1
         res.yhat0 = count(y .* (1 .-z) .* (x .== x0))/nz1 
     end
-    
 end
 
 
