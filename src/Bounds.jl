@@ -93,12 +93,13 @@ end
 
 function missing(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
     # just missing y
+    ny = length(y)
 end
 
 function treatment(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
-    ny=length(y)
-    nx=length(x)
-    nz=length(z)
+    ny = length(y)
+    nx = length(x)
+    nz = length(z)
     if (ny !=nx) || (ny != nz) 
         error("vector length not matching")
     end
