@@ -94,6 +94,29 @@ end
 function missing(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
     # just missing y
     ny = length(y)
+    nx = length(x)
+    nz = length(z)
+    if (ny !=nx) || (ny != nz) 
+        error("vector length not matching")
+    end
+    zer0 ::T = 0
+    res::Vector{T} = Treatment(zer0,0,0,0,0,0,0,0,0,0)
+    if cont
+        res.prob1 = kreg(z,x,x0,h)
+        res.prob0 = 1- res.prob1
+        res.yhat1 = kreg(y,x,x0,h,z)
+        res.yhat0 = NaN 
+    else
+        nx0 = count(x .== x0)
+        temp1 = z .* (x .== x0)
+        nz1 = count(temp1)
+
+        res.prob1 = nz1/nx0
+        res.prob0 = 1 - res.prob1    
+        res.yhat1 = count(y .* z .* (x .== x0))/nz1
+        res.yhat0 = NaN 
+    end
+
 end
 
 function treatment(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
