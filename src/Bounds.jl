@@ -116,7 +116,12 @@ function missing(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.
         res.yhat1 = count(y .* z .* (x .== x0))/nz1
         res.yhat0 = NaN 
     end
-
+    res.bound0L = NaN
+    res.bound0U = NaN
+    res.bound1L = K0 * res.prob0 + res.yhat1 * res.prob1
+    res.bound1U = K1 * res.prob0 + res.yhat1 * res.prob1
+    res.treatL = NaN
+    res.treatU - NaN
 end
 
 function treatment(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
