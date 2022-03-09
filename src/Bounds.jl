@@ -91,6 +91,10 @@ mutable struct Treatment{T}
     treatU :: T 
 end
 
+function missing(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
+    # just missing y
+end
+
 function treatment(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
     ny=length(y)
     nx=length(x)
