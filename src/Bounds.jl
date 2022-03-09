@@ -3,7 +3,7 @@ module Bounds
 using Statistics
 using LinearAlgebra
 
-export SimpleBound
+export SimpleBound,missingObs
 
 ### Silverman Rule of Thumb for bandwidth selection ##
 function silverman(x::Vector{T}) where T<:Real
@@ -69,16 +69,22 @@ function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T,w::Vector{T}) where T<:Abstra
 		f = sum(df)
 		m = sum(w.*Y.*df)
 	end
-	if f >0 
+	if f > 0.000001 
         return m/f
     else
         return 0.0
     end
 end
 
+mutable struct assumptions
+    tol   :: Float64
+    Yₗ     :: Float64
+    Yᵤ    :: Float64
+    model :: String
+end
 
 ### Worst Case Scenario Bounds 
-mutable struct Treatment{T} 
+mutable struct Results{T} 
     prob0 :: T
     prob1 :: T
     yhat0 :: T
@@ -89,10 +95,11 @@ mutable struct Treatment{T}
     bount1U :: T 
     treatL :: T 
     treatU :: T 
+    model  :: String
 end
 
-function missing(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
-    # just missing y
+function missingObs(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
+    # if z=0,  y is missing
     ny = length(y)
     nx = length(x)
     nz = length(z)
@@ -100,7 +107,7 @@ function missing(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.
         error("vector length not matching")
     end
     zer0 ::T = 0
-    res::Vector{T} = Treatment(zer0,0,0,0,0,0,0,0,0,0)
+    res::Vector{T} = Results(zer0,0,0,0,0,0,0,0,0,0,"")
     if cont
         res.prob1 = kreg(z,x,x0,h)
         res.prob0 = 1- res.prob1
@@ -121,10 +128,11 @@ function missing(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.
     res.bound1L = K0 * res.prob0 + res.yhat1 * res.prob1
     res.bound1U = K1 * res.prob0 + res.yhat1 * res.prob1
     res.treatL = NaN
-    res.treatU - NaN
+    res.treatU = NaN
+    res.model  = "Missing Y observations"
 end
 
-function treatment(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
+function treatmentEffect(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
     ny = length(y)
     nx = length(x)
     nz = length(z)
@@ -132,7 +140,7 @@ function treatment(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=
         error("vector length not matching")
     end
     zer0 ::T = 0
-    res::Vector{T} = Treatment(zer0,0,0,0,0,0,0,0,0,0)
+    res::Vector{T} = Results(zer0,0,0,0,0,0,0,0,0,0,"")
     if cont
         res.prob1 = kreg(z,x,x0,h)
         res.prob0 = 1- res.prob1
@@ -148,6 +156,7 @@ function treatment(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=
         res.yhat1 = count(y .* z .* (x .== x0))/nz1
         res.yhat0 = count(y .* (1 .-z) .* (x .== x0))/nz1 
     end
+    res.model  = "Treatment Effect, no assumptions"
 end
 
 
