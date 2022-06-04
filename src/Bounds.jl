@@ -2,8 +2,34 @@ module Bounds
 
 using Statistics
 using LinearAlgebra
+using Parameters
 
-export SimpleBound,missingObs
+export SimpleBound,missingObs, Assumptions, Results
+
+@with_kw mutable struct Assumptions
+    tol   :: Float64 = 0.000001
+    Yₗ     :: Float64 = 0.0
+    Yᵤ    :: Float64 = 1.0
+
+    Bootstrap_iterations :: Int64 = 100
+end
+
+### Worst Case Scenario Bounds 
+mutable struct Results{T<:Real}
+    prob0 :: T
+    prob1 :: T
+    yhat0 :: T
+    yhat1 :: T 
+    bound0L :: T 
+    bound0U :: T 
+    bound1L :: T 
+    bount1U :: T 
+    treatL :: T 
+    treatU :: T 
+    model  :: String
+end
+
+const default_options = Assumptions()
 
 ### Silverman Rule of Thumb for bandwidth selection ##
 function silverman(x::Vector{T}) where T<:Real
@@ -76,28 +102,7 @@ function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T,w::Vector{T}) where T<:Real
     end
 end
 
-mutable struct assumptions
-    tol   :: Float64
-    Yₗ     :: Float64
-    Yᵤ    :: Float64
-    model :: String
-    tol   :: Float64
-end
 
-### Worst Case Scenario Bounds 
-mutable struct Results{T} where T<:Real
-    prob0 :: T
-    prob1 :: T
-    yhat0 :: T
-    yhat1 :: T 
-    bound0L :: T 
-    bound0U :: T 
-    bound1L :: T 
-    bount1U :: T 
-    treatL :: T 
-    treatU :: T 
-    model  :: String
-end
 
 function missingObs(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
     # if z=0,  y is missing
