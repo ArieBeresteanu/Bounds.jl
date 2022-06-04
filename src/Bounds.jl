@@ -52,7 +52,7 @@ function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T) where T<:Real
 end
 
 
-function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T,w::Vector{T}) where T<:AbstractFloat 
+function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T,w::Vector{T}) where T<:Real 
     # This is a version of kreg where we can introduce weights. 
     # It is done mostly so we can conditon on binary weights, i.e. exclude some observations
 
@@ -81,10 +81,11 @@ mutable struct assumptions
     Yₗ     :: Float64
     Yᵤ    :: Float64
     model :: String
+    tol   :: Float64
 end
 
 ### Worst Case Scenario Bounds 
-mutable struct Results{T} 
+mutable struct Results{T} where T<:Real
     prob0 :: T
     prob1 :: T
     yhat0 :: T
