@@ -1,18 +1,29 @@
 module Bounds
 
+#########################
+### Imported packages ###
+#########################
 using Statistics
 using LinearAlgebra
 using Parameters
 
-export SimpleBound,missingObs, Assumptions, Results
+##################################
+## exported functions and types ##
+##################################
+export SimpleBound,missingObs, Assumptions, Results, default_options
 
+######################
+## type definitions ##
+######################
 @with_kw mutable struct Assumptions
     tol   :: Float64 = 0.000001
     Yₗ     :: Float64 = 0.0
     Yᵤ    :: Float64 = 1.0
 
     Bootstrap_iterations :: Int64 = 100
+    kernel   :: Function = epa
 end
+
 
 ### Worst Case Scenario Bounds 
 mutable struct Results{T<:Real}
@@ -29,7 +40,19 @@ mutable struct Results{T<:Real}
     model  :: String
 end
 
-const default_options = Assumptions()
+# default options
+default_options = Assumptions()
+
+
+
+#############################################
+###      M A I N   F U N C T I O N S      ###
+#############################################
+
+
+######################
+## utility fuctions ##
+######################
 
 ### Silverman Rule of Thumb for bandwidth selection ##
 function silverman(x::Vector{T}) where T<:Real
@@ -103,6 +126,9 @@ function kreg(Y::Vector{T},X::Vector{T},x0::T,h::T,w::Vector{T}) where T<:Real
 end
 
 
+############################
+##  Missing Observations  ##
+############################
 
 function missingObs(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
     # if z=0,  y is missing
@@ -137,6 +163,11 @@ function missingObs(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T
     res.treatU = NaN
     res.model  = "Missing Y observations"
 end
+
+
+########################
+##  Treatment Effect  ##
+########################
 
 function treatmentEffect(y::Vector{T},z::Vector{T},x::Vector{T},x0::T,cont::Bool,h::T=1.0) where T<:Real
     ny = length(y)
