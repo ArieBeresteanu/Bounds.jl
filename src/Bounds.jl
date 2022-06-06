@@ -7,6 +7,13 @@ using Statistics
 using LinearAlgebra
 using Parameters
 
+
+#####################
+## kernel fuctions ##
+#####################
+
+include("smoothingKernels.jl")
+
 ##################################
 ## exported functions and types ##
 ##################################
@@ -21,7 +28,7 @@ export SimpleBound,missingObs, Assumptions, Results, default_options
     Yᵤ    :: Float64 = 1.0
 
     Bootstrap_iterations :: Int64 = 100
-    kernel   :: Function = epa
+    kernel   :: Function = smoothingKernels.epanechnikov
 end
 
 
@@ -44,15 +51,13 @@ end
 default_options = Assumptions()
 
 
-
 #############################################
 ###      M A I N   F U N C T I O N S      ###
 #############################################
 
-
-######################
-## utility fuctions ##
-######################
+##########################
+# Misceleneous functions #
+##########################
 
 ### Silverman Rule of Thumb for bandwidth selection ##
 function silverman(x::Vector{T}) where T<:Real
@@ -60,18 +65,19 @@ function silverman(x::Vector{T}) where T<:Real
     return 1.06*length(x)^(-0.2)*std(x)
 end
 
+
 ### Epanechnikov Kernel function ###
 #     Version 1: X,x0 and h are scalars
-function epa(x::T,x0::T=0.0,h::T=1.0) where T<:Real 
-    temp = min(abs((x-x0)/h),1.0)
-    return 0.75*(1.0-temp^2)
-end
+#function epa(x::T,x0::T=0.0,h::T=1.0) where T<:Real 
+#    temp = min(abs((x-x0)/h),1.0)
+#    return 0.75*(1.0-temp^2)
+#end
 
 #     Version 2: X is a vector, x0,h are scalars
-function epa(x::Vector{T},x0::T=0.0,h::T=1.0) where T<:Real 
-    temp = min.(norm.((x.-x0)./h),1.0)
-    return 0.75*(1.0.-temp.^2)
-end
+#function epa(x::Vector{T},x0::T=0.0,h::T=1.0) where T<:Real 
+#    temp = min.(norm.((x.-x0)./h),1.0)
+#    return 0.75*(1.0.-temp.^2)
+#end
 
 
 ### Kernel density estimation ###
