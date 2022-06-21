@@ -4,7 +4,7 @@ module smoothingKernels
 # because we take a ratio of two summations and the constant will cancel. 
 # This may save some time and improve computational accuracy... maybe
 
-# For kernel density MUST use the notmalized (regular) version of the kernel
+# For kernel density we MUST use the notmalized (regular) version of the kernel
 # functions because there is no ratio and the constant must be included!
 
 uniform(u::T) where {T} = 1//2 * T(abs(u) <= 1.0)
