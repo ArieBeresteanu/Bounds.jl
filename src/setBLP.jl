@@ -1,10 +1,18 @@
 module setBLP
 
-import LinearAlgebra
+import LinearAlgebra,Base
+
+export Vertex,Segment,dotDist,Polygon
+
+mutable struct Vertex
+    v::Vector{Real}
+end
+
+Base.:(-)(v1::Vertex,v2::Vertex) = Vertex(v1.v-v2.v)
 
 mutable struct Segment
-    p1::Vector{Real}
-    p2::Vector{Real}
+    p1::Vertex
+    p2::Vertex
     checkInput::Function
     length::Function
     dim::Function
@@ -55,6 +63,35 @@ function dotDist(p::Vector{<:Real}, segment::Segment)
     else
         return "Segment has wrong dimentions"
     end
+end
+
+function xangle(seg::Segment)
+    Δ = seg.p2-seg.p1
+    flag=false
+    if Δ[2] < 0
+        Δ[2] = -Δ[2]
+        flag = true
+    end
+    xang =atan(abs(Δ[1]),Δ[2])
+    if Δ[1]<0
+        xang = pi-xang
+    end
+    if flag
+        xang=2*pi-xang
+    end
+    return xang
+
+end
+mutable struct Polygon
+    vertices :: Vector{Vertex}
+    sort :: Function
+
+    function Polygon(vertices)
+        this = new()
+
+        this.vertices=vertices
+        this.sort = function()
+
 end
 
 end #of module
