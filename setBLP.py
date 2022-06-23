@@ -81,7 +81,7 @@ def dHausdorff(P1:Polygons, P2:Polygons):
     for i in range(len(P1.x)):
         P3 = [P1.x[i], P1.y[i]]
         d = dotDist([P2.x[0], P2.y[0]],[P2.x[-1], P2.y[-1]], P3)
-        for j in range(1,len(P2.x)-1):
+        for j in range(len(P2.x)-1):
             d = min(d,dotDist([P2.x[j], P2.y[j]],[P2.x[j+1], P2.y[j+1]], P3))
         d_inf.append(d)
     return max(d_inf)
