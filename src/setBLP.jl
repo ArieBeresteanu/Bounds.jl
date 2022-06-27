@@ -9,6 +9,7 @@ mutable struct Vertex
 end
 
 Base.:(-)(v1::Vertex,v2::Vertex) = Vertex(v1.v-v2.v)
+Base.:(+)(v1::Vertex,v2::Vertex) = Vertex(v1.v+v2.v)
 
 mutable struct Segment
     p1::Vertex
