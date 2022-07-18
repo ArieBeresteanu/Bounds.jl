@@ -195,7 +195,7 @@ end
 function dirHausdorff(P::Polygon,Q::Polygon)
     n = length(P.vertices)
     m = length(Q.vertices)
-    dist_global = Inf
+    dist_global = -Inf
     for i=1:n
         dist = Inf
         for j=1:m
