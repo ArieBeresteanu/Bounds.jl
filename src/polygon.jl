@@ -205,7 +205,7 @@ function dirHausdorff(P::Polygon,Q::Polygon)
         end
         dist_global=max(dis_global,dist)
     end
-    return dist
+    return dist_global
 end
 
 function hausdorff(P::Polygon,Q::Polygon)
