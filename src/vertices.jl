@@ -4,7 +4,7 @@
 import LinearAlgebra ,Base, Statistics
 
 
-#export Vertex, subVertex, addVertex, lambdaVertex, negVertex, xangle, fetchX, fetchY
+#export Vertex, subVertex, addVertex, lambdaVertex, negVertex, xangle, fetchX, fetchY, distVertex
 
 mutable struct Vertex
     v::Vector{Real}
@@ -87,6 +87,12 @@ function fetchX(ver::Vertex)
     return ver.v[1]
 end
 
+ 
+function distVertex(v1::Vertex,v2::Vertex)
+    v = v1-v2
+    return max(abs.(v.v))
+end
+ 
 Statistics.sum(vec::Vector{Vertex}) = Vertex(sum(vec[i].v for i=1:length(vec)))
 
 
