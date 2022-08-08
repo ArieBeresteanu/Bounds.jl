@@ -90,9 +90,9 @@ end
  
 function distVertex(v1::Vertex,v2::Vertex)
     v = v1-v2
-    return max(abs.(v.v))
+    return maximum(abs.(v.v))
 end
- 
+  
 Statistics.sum(vec::Vector{Vertex}) = Vertex(sum(vec[i].v for i=1:length(vec)))
 
 
