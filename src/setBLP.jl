@@ -22,7 +22,7 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},B::Int64
 	n = length(yl)
 	testStat = sqrt(n)*distVertex(bound,H0)
 
-	#critical value based on 
+	#critical value based on Hausdorff distance
 	σ = cov(yl,yU)
 	Pi = [var(yl) σ; σ var(yu)]
 	
@@ -34,7 +34,7 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},B::Int64
 
 	c_H = r[floor(Int64,α*length(r))]
 
-	rr = abs.(rand(d,10));
+	rr = abs.(rand(d,B));
 	r = maximum(rr,dims=1);
 	sort!(r,dims=1)
 	α = 0.95;
