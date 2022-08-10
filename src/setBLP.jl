@@ -12,12 +12,30 @@ export Segment, dotDist, xangle
 include("polygons.jl")  
 export Polygon, minkowskiSum, lambdaPolygon, dirHausdorff, hausdorff
 
-function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64})
+function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},B::Int64=1000,α::Float64=0.95;)
+	# Point estimator
 	LB = mean(yl)
 	UB = mean(yu)
 	bound = Vertex([LB,UB])
-	return bound, distVertex(bound,H0)
+
+	# test Statistic
+	n = length(yl)
+	testStat = sqrt(n)*distVertex(bound,H0)
+
+	#critical value based on 
+	σ = cov(yl,yU)
+	Pi = [var(yl) σ; σ var(yu)]
+	
+	d = MvNormal([0, 0],Pi)
+	rr = abs.(rand(d,B));
+	r = maximum(rr,dims=1);
+	sort!(r,dims=1)
+
+	c_H = r[floor(Int64,α*length(r))]
+
+	return bound, testStat, c_H
 end
+
 
 export EY
 
