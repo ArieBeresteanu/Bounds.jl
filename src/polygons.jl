@@ -198,13 +198,14 @@ end
 function dirHausdorff(P::Polygon,Q::Polygon)
     n = length(P.vertices)
     m = length(Q.vertices)
-    dist = Inf
+    dist = - Inf
     for i=1:n
+        d = Inf
         for j=1:m
             next_j = j+1>m ? 1 : j+1
-            d = dotDist(P.vertices[i],Segment(Q.vertices[j],Q.vertices[next_j]))
-            dist = min(dist,d)
+            d = min(d, dotDist(P.vertices[i],Segment(Q.vertices[j],Q.vertices[next_j])))
         end
+        dist = max(dist,d)
     end
     return dist
 end
@@ -212,7 +213,7 @@ end
 function hausdorff(P::Polygon,Q::Polygon)
     d1 = dirHausdorff(P,Q)
     d2 = dirHausdorff(Q,P)
-    return min(d1,d2)
+    return max(d1,d2)
 end
 
 #end #of module Polygons 
