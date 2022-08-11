@@ -37,23 +37,16 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	
 	d = MvNormal([0, 0],Pi) #defining the joint normal distribution
 	B= options.MC_iterations #number of MC iterations to compute the critical value
-	α = options.conf_level  #confidence level for the critical value1``
+	α = options.conf_level  #confidence level for the critical value1
 
+	## Following Algorithm on page 780 in BM2008:
 	rr = abs.(rand(d,B));
 	r = maximum(rr,dims=1);
 	sort!(r,dims=1)
-
 	c_H = r[floor(Int64,α*length(r))]
+	CI = [yl-c_H/sqrt(n),yu+c_H/sqrt(n)]
 
-	rr = abs.(rand(d,B));
-	r = maximum(rr,dims=1);
-	sort!(r,dims=1)
-	
-
-	c_H = r[floor(Int64,α*length(r))]
-
-	
-	return bound, testStat, c_H
+	return bound, testStat, c_H, CI
 end
 
 
