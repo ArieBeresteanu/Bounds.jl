@@ -22,14 +22,18 @@ end
 const default_options = Options(2000,15217,MersenneTwister(15217),0.95)
 
 
+plus(::<Real)=max(0.0,x)
+minus(x::Real)=max(0.0,-x)
+
 function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options)
     LB = mean(yl)
 	UB = mean(yu)
-	bound = Vertex([LB,UB])
+	bound = [LB,UB]
 
 	# test Statistic
 	n = length(yl)
-	testStat = sqrt(n)*distVertex(bound,H0)
+	sqrt_n = sqrt(n)
+	testStat = sqrt_n*distVertex(bound,H0)
 
 	#critical value based on Hausdorff distance
 	σ = cov(yl,yU)
@@ -40,13 +44,22 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	α = options.conf_level  #confidence level for the critical value1
 
 	## Following Algorithm on page 780 in BM2008:
-	rr = abs.(rand(d,B));
-	r = maximum(rr,dims=1);
-	sort!(r,dims=1)
-	c_H = r[floor(Int64,α*length(r))]
-	CI = [yl-c_H/sqrt(n),yu+c_H/sqrt(n)]
+	rr = (rand(d,B)); #drawing B pairs from a bivariate-normal distribution.
+	
+	## test based on Hausdorff distance:
+	r_H = maximum(abs.(rr),dims=1);
+	sort!(r_H,dims=1)
+	c_H = r_H[floor(Int64,α*length(rr))]
+	CI_H = [yl-c_H/sqrt_n,yu+c_H/sqrt_n]
 
-	return bound, testStat, c_H, CI
+	#test based on directed Hausdorff distance:
+	r_dH = maximum([plus.(rr[1,:]);minus.(rr[2,:])],dims=1)
+	sort!(r_dH,dims=1)
+	c_dH = r_dH[floor(Int64,α*length(rr))]
+	CI_dH = [yl-c_dH/sqrt_n,yu+c_dH/sqrt_n]
+
+
+	return bound, testStat, c_H, CI_H, c_dH, CI_dH
 end
 
 
