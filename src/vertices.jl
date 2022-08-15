@@ -88,11 +88,16 @@ function fetchX(ver::Vertex)
 end
 
  
-function distVertex(v1::Vertex,v2::Vertex)
+function L1dist(v1::Vertex,v2::Vertex)
     v = v1-v2
     return maximum(abs.(v.v))
 end
-  
+
+function L2dist(v1::Vertex,v2::Vertex)
+    v = v1-v2
+    return LinearAlgebra.norm(v.v)
+end
+
 Statistics.sum(vec::Vector{Vertex}) = Vertex(sum(vec[i].v for i=1:length(vec)))
 
 

@@ -22,8 +22,19 @@ end
 const default_options = Options(2000,15217,MersenneTwister(15217),0.95)
 
 
-plus(::<Real)=max(0.0,x)
+plus(::Real)=max(0.0,x)
 minus(x::Real)=max(0.0,-x)
+
+
+function HdistInterval(v1::Vector{Real},v2::Vector{Real})
+    v = v1 - v2
+    return maximum(abs.(v))
+end
+  
+function dHdistInterval(v1::Vector{Real},v2::Vector{Real})
+    v = v1 - v2
+	return maximum([plus(v[1])+minus(v[2])])
+end
 
 function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options)
     LB = mean(yl)
@@ -33,7 +44,8 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	# test Statistic
 	n = length(yl)
 	sqrt_n = sqrt(n)
-	testStat = sqrt_n*distVertex(bound,H0)
+	testStat_H = sqrt_n*distVertex(bound,H0)
+	destStat_dH
 
 	#critical value based on Hausdorff distance
 	σ = cov(yl,yU)
@@ -59,7 +71,7 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	CI_dH = [yl-c_dH/sqrt_n,yu+c_dH/sqrt_n]
 
 
-	return bound, testStat, c_H, CI_H, c_dH, CI_dH
+	return bound, testStat_H, c_H, CI_H, c_dH, CI_dH
 end
 
 
