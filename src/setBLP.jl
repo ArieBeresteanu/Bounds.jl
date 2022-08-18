@@ -3,6 +3,10 @@ module setBLP
 import LinearAlgebra ,Base
 using Statistics, Random
 
+####################
+###   Includes:  ###
+####################
+
 include("vertices.jl") 
 export Vertex, subVertex, addVertex, lambdaVertex, negVertex, xangle, fetchX, fetchY
 
@@ -12,6 +16,10 @@ export Segment, dotDist, xangle
 include("polygons.jl")  
 export Polygon, minkowskiSum, lambdaPolygon, dirHausdorff, hausdorff
 
+###############################
+###   Defined Structures:   ###
+###############################  
+
 mutable struct Options
 	MC_iterations::Int64
 	seed::Int64
@@ -19,12 +27,32 @@ mutable struct Options
 	conf_level::Float64
 end
 
+mutable struct testResults
+	destStat :: Real
+	criticalVal :: Real
+	ConfidenceInterval :: vector{Real}
+end
+
+mutable struct Results
+	bound :: Vector{Real}
+	Htest :: testResults
+	dHtest :: testResults
+end
+
+
+#####################
+###   Constants   ###
+#####################
+
 const default_options = Options(2000,15217,MersenneTwister(15217),0.95)
 
 
+#####################
+###  Functions:   ###
+#####################
+
 plus(::Real)=max(0.0,x)
 minus(x::Real)=max(0.0,-x)
-
 
 function HdistInterval(v1::Vector{Real},v2::Vector{Real})
     v = v1 - v2
@@ -45,7 +73,7 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	n = length(yl)
 	sqrt_n = sqrt(n)
 	testStat_H = sqrt_n*distVertex(bound,H0)
-	destStat_dH
+	destStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
 	#critical value based on Hausdorff distance
 	σ = cov(yl,yU)
@@ -71,10 +99,13 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	CI_dH = [yl-c_dH/sqrt_n,yu+c_dH/sqrt_n]
 
 
-	return bound, testStat_H, c_H, CI_H, c_dH, CI_dH
+	return bound, testStat_H, destStat_dH, c_H, CI_H, c_dH, CI_dH
 end
 
+###########################
+### Export Statement:   ###
+###########################
 
-export Options,EY
+export Options,default_options. Results, testResults, EY
 
 end #of module
