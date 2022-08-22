@@ -90,14 +90,14 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	r_H = maximum(abs.(rr),dims=1);
 	sort!(r_H,dims=1)
 	c_H = r_H[floor(Int64,α*length(rr))]
-	CI_H = [yl-c_H/sqrt_n,yu+c_H/sqrt_n]
+	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
 	Htest = testResults(testStat_H,c_H,CI_H) 
 
 	#test based on directed Hausdorff distance:
 	r_dH = maximum([plus.(rr[1,:]);minus.(rr[2,:])],dims=1)
 	sort!(r_dH,dims=1)
 	c_dH = r_dH[floor(Int64,α*length(rr))]
-	CI_dH = [yl-c_dH/sqrt_n,yu+c_dH/sqrt_n]
+	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
 	dHtest = testResults(testStat_dH,c_dH,CI_dH)
 
 	results = Results(bound,Htest,dHtest)
