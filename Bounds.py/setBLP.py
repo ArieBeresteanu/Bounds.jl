@@ -30,8 +30,8 @@ class Options:
         self.conf_level = conf_level
         
 class testResults:
-    def __init__(self, destStat, criticalVal, ConfidenceInterval):
-        self.destStat = destStat 
+    def __init__(self, testStat, criticalVal, ConfidenceInterval):
+        self.testStat = testStat 
         self.criticalVal = criticalVal
         self.ConfidenceInterval = ConfidenceInterval
         
@@ -74,7 +74,7 @@ def EY(yl:list, yu:list, H0:list, options:Options=default_options):
     n = len(yl)
     sqrt_n = np.sqrt(n)
     testStat_H = sqrt_n*HdistInterval(bound, H0)
-    destStat_dH = sqrt_n * dHdistInterval(bound, H0)
+    testStat_dH = sqrt_n * dHdistInterval(bound, H0)
     
     # critical value based on Hausdorff distance
     Pi = np.cov(yl, yu) #covariance matrix for yl yu
