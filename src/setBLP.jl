@@ -61,7 +61,7 @@ end
   
 function dHdistInterval(v1::Vector{Real},v2::Vector{Real})
     v = v1 - v2
-	return maximum([plus(v[1])+minus(v[2])])
+	return maximum([plus(v[1]),minus(v[2])])
 end
 
 function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options)
@@ -76,7 +76,7 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	destStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
 	#critical value based on Hausdorff distance
-	σ = cov(yl,yU)
+	σ = cov(yl,yu)
 	Pi = [var(yl) σ; σ var(yu)] #covariance matrix for yl,yu
 	
 	d = MvNormal([0, 0],Pi) #defining the joint normal distribution
