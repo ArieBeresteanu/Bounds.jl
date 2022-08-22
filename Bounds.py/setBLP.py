@@ -83,6 +83,7 @@ def EY(yl:list, yu:list, H0:list, options:Options=default_options):
     alpha = options.conf_level #confidence level for the critical value1
     
     ## Following Algorithm on page 780 in BM2008:
+    np.random.seed(options.seed)
     rr = np.random.multivariate_normal([0,0], Pi, B) #drawing B pairs from a bivariate-normal distribution.
     
     ## test based on Hausdorff distance:
