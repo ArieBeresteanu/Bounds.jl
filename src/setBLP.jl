@@ -28,7 +28,7 @@ mutable struct Options
 end
 
 mutable struct testResults
-	destStat :: Real
+	testStat :: Real
 	criticalVal :: Real
 	ConfidenceInterval :: vector{Real}
 end
@@ -73,7 +73,7 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	n = length(yl)
 	sqrt_n = sqrt(n)
 	testStat_H = sqrt_n*distVertex(bound,H0)
-	destStat_dH = sqrt_n*dHdistInterval(bound,H0)
+	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
 	#critical value based on Hausdorff distance
 	σ = cov(yl,yu)
