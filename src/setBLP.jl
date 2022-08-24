@@ -28,7 +28,7 @@ mutable struct Options
 end
 
 mutable struct testResults
-	destStat :: Real
+	testStat :: Real
 	criticalVal :: Real
 	ConfidenceInterval :: vector{Real}
 end
@@ -61,7 +61,7 @@ end
   
 function dHdistInterval(v1::Vector{Real},v2::Vector{Real})
     v = v1 - v2
-	return maximum([plus(v[1])+minus(v[2])])
+	return maximum([plus(v[1]),minus(v[2])])
 end
 
 function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options)
@@ -73,10 +73,10 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	n = length(yl)
 	sqrt_n = sqrt(n)
 	testStat_H = sqrt_n*distVertex(bound,H0)
-	destStat_dH = sqrt_n*dHdistInterval(bound,H0)
+	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
 	#critical value based on Hausdorff distance
-	σ = cov(yl,yU)
+	σ = cov(yl,yu)
 	Pi = [var(yl) σ; σ var(yu)] #covariance matrix for yl,yu
 	
 	d = MvNormal([0, 0],Pi) #defining the joint normal distribution
@@ -90,14 +90,14 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	r_H = maximum(abs.(rr),dims=1);
 	sort!(r_H,dims=1)
 	c_H = r_H[floor(Int64,α*length(rr))]
-	CI_H = [yl-c_H/sqrt_n,yu+c_H/sqrt_n]
+	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
 	Htest = testResults(testStat_H,c_H,CI_H) 
 
 	#test based on directed Hausdorff distance:
 	r_dH = maximum([plus.(rr[1,:]);minus.(rr[2,:])],dims=1)
 	sort!(r_dH,dims=1)
 	c_dH = r_dH[floor(Int64,α*length(rr))]
-	CI_dH = [yl-c_dH/sqrt_n,yu+c_dH/sqrt_n]
+	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
 	dHtest = testResults(testStat_dH,c_dH,CI_dH)
 
 	results = Results(bound,Htest,dHtest)
@@ -106,9 +106,9 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 end
 
 ###########################
-### Export Statement:   ###
+###  Export Statement:  ###
 ###########################
 
-export Options,default_options. Results, testResults, EY
+export Options,default_options, Results, testResults, EY
 
 end #of module
