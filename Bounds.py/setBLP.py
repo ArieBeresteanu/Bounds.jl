@@ -99,5 +99,5 @@ def EY(yl:list, yu:list, H0:list, options:Options=default_options):
     CI_dH = [LB - c_dH/sqrt_n, UB + c_dH/sqrt_n]
     dHtest = testResults(testStat_dH,c_dH,CI_dH)
     
-    results = Result(bound, Htest, dHtest)
+    results = Results(bound, Htest, dHtest)
     return results
