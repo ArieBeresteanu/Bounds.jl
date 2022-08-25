@@ -64,7 +64,60 @@ function dHdistInterval(v1::Vector{Real},v2::Vector{Real})
 	return maximum([plus(v[1]),minus(v[2])])
 end
 
-function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options)
+function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options,method="Asymptotic")
+	#THis is the shell function that calls either the asymtotic distribution version or the bootstrap version of EY
+	if method =="Asymptotic"
+		EYasy(yl,yu,H0,options)
+	else
+		EYboot(yl,yu,H0,options)
+	end
+end
+
+
+function EYboot(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options)
+	#This function uses a bootstrap test. This option is not in BM(2008) for EY but it is proved for BLP in section 4
+	LB = mean(yl)
+	UB = mean(yu)
+	bound = [LB,UB]
+
+	# test Statistic
+	n = length(yl)
+	sqrt_n = sqrt(n)
+	testStat_H = sqrt_n*distVertex(bound,H0)
+	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
+
+	B = options.MC_iterations #number of MC iterations to compute the critical value
+	α = options.conf_level  #confidence level for the critical value1
+	distribution = DiscreteUniform(1,n)
+
+	r_H=zeros(n)
+	r_dH = zeros(n)
+
+	for i=1:B
+		indx = rand(options.rng,distribution,n)
+		yl_b = yl[indx]
+		yu_b = yu[indx]
+		bound_b = [mean(yl_b),mean(yu_b)]
+		r_H[i] = sqrt_n * HdistInterval(bound_b,bound)
+		r_dH[i] = sqrt_n * dHdistInterval(bound_b,bound)
+	end
+	sort!(r_H)
+	c_H = r_H[floor(Int64,α*B)]
+	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
+	Htest = testResults(testStat_H,c_H,CI_H) 
+
+	sort!(r_dH)
+	c_dH = r_dH[floor(Int64,α*B)]
+	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
+	dHtest = testResults(testStat_dH,c_dH,CI_dH)
+
+	results = Results(bound,Htest,dHtest)
+
+	return results
+end
+
+function EYasy(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options)
+	#This function uses the test based on the asymptotic distributin as developed in BM(2008) pp. 778-779
     LB = mean(yl)
 	UB = mean(yu)
 	bound = [LB,UB]
@@ -75,12 +128,14 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 	testStat_H = sqrt_n*distVertex(bound,H0)
 	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
-	#critical value based on Hausdorff distance
+	#Simulating the asy. distribution using a MC method to establish a critical value (quantile):
+
+	# Drawing pairs of bivariate normal r.v.'s 
 	σ = cov(yl,yu)
 	Pi = [var(yl) σ; σ var(yu)] #covariance matrix for yl,yu
 	
 	d = MvNormal([0, 0],Pi) #defining the joint normal distribution
-	B= options.MC_iterations #number of MC iterations to compute the critical value
+	B = options.MC_iterations #number of MC iterations to compute the critical value
 	α = options.conf_level  #confidence level for the critical value1
 
 	## Following Algorithm on page 780 in BM2008:
