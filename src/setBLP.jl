@@ -30,7 +30,7 @@ end
 mutable struct testResults
 	testStat :: Real
 	criticalVal :: Real
-	ConfidenceInterval :: vector{Real}
+	ConfidenceInterval :: Vector{Real}
 end
 
 mutable struct Results
