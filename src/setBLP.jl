@@ -30,7 +30,7 @@ end
 mutable struct testResults
 	testStat :: Real
 	criticalVal :: Real
-	ConfidenceInterval :: vector{Real}
+	ConfidenceInterval :: Vector{Real}
 end
 
 mutable struct Results
@@ -64,6 +64,7 @@ function dHdistInterval(v1::Vector{Real},v2::Vector{Real})
 	return maximum([plus(v[1]),minus(v[2])])
 end
 
+## Plan: add DataFrame capabilities
 function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options,method="Asymptotic")
 	#THis is the shell function that calls either the asymtotic distribution version or the bootstrap version of EY
 	if method =="Asymptotic"
@@ -83,7 +84,7 @@ function EYboot(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},opti
 	# test Statistic
 	n = length(yl)
 	sqrt_n = sqrt(n)
-	testStat_H = sqrt_n*distVertex(bound,H0)
+	testStat_H = sqrt_n*HdistInterval(bound,H0)
 	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
 	B = options.MC_iterations #number of MC iterations to compute the critical value
@@ -125,7 +126,7 @@ function EYasy(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},optio
 	# test Statistic
 	n = length(yl)
 	sqrt_n = sqrt(n)
-	testStat_H = sqrt_n*distVertex(bound,H0)
+	testStat_H = sqrt_n*HdistInterval(bound,H0)
 	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
 	#Simulating the asy. distribution using a MC method to establish a critical value (quantile):
