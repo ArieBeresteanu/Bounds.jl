@@ -51,8 +51,8 @@ const default_options = Options(2000,15217,MersenneTwister(15217),0.95)
 ###  Functions:   ###
 #####################
 
-plus(x<:Real)=max(0.0,x)
-minus(x<:Real)=max(0.0,-x)
+plus(x::Real)=max(0.0,x)
+minus(x::Real)=max(0.0,-x)
 
 function HdistInterval(v1::Vector{<:Real},v2::Vector{<:Real})
     v = v1 - v2
