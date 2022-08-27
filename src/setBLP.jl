@@ -30,11 +30,11 @@ end
 mutable struct testResults
 	testStat :: Real
 	criticalVal :: Real
-	ConfidenceInterval :: Vector{Real}
+	ConfidenceInterval :: Vector{<:Real}
 end
 
 mutable struct Results
-	bound :: Vector{Real}
+	bound :: Vector{<:Real}
 	Htest :: testResults
 	dHtest :: testResults
 end
@@ -54,18 +54,18 @@ const default_options = Options(2000,15217,MersenneTwister(15217),0.95)
 plus(::Real)=max(0.0,x)
 minus(x::Real)=max(0.0,-x)
 
-function HdistInterval(v1::Vector{Real},v2::Vector{Real})
+function HdistInterval(v1::Vector{<:Real},v2::Vector{<:Real})
     v = v1 - v2
     return maximum(abs.(v))
 end
   
-function dHdistInterval(v1::Vector{Real},v2::Vector{Real})
+function dHdistInterval(v1::Vector{<:Real},v2::Vector{<:Real})
     v = v1 - v2
 	return maximum([plus(v[1]),minus(v[2])])
 end
 
 ## Plan: add DataFrame capabilities
-function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options,method="Asymptotic")
+function EY(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options,method="Asymptotic")
 	#THis is the shell function that calls either the asymtotic distribution version or the bootstrap version of EY
 	if method =="Asymptotic"
 		EYasy(yl,yu,H0,options)
@@ -75,7 +75,7 @@ function EY(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options:
 end
 
 
-function EYboot(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options)
+function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
 	#This function uses a bootstrap test. This option is not in BM(2008) for EY but it is proved for BLP in section 4
 	LB = mean(yl)
 	UB = mean(yu)
@@ -117,7 +117,7 @@ function EYboot(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},opti
 	return results
 end
 
-function EYasy(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},options::Options=default_options)
+function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
 	#This function uses the test based on the asymptotic distributin as developed in BM(2008) pp. 778-779
     LB = mean(yl)
 	UB = mean(yu)
