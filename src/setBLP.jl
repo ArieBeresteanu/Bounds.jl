@@ -30,7 +30,7 @@ end
 mutable struct testResults
 	testStat :: Real
 	criticalVal :: Real
-	ConfidenceInterval :: vector{Real}
+	ConfidenceInterval :: Vector{Real}
 end
 
 mutable struct Results
@@ -83,7 +83,7 @@ function EYboot(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},opti
 	# test Statistic
 	n = length(yl)
 	sqrt_n = sqrt(n)
-	testStat_H = sqrt_n*distVertex(bound,H0)
+	testStat_H = sqrt_n*HdistInterval(bound,H0)
 	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
 	B = options.MC_iterations #number of MC iterations to compute the critical value
@@ -125,7 +125,7 @@ function EYasy(yl::Vector{Float64},yu::Vector{Float64},H0::Vector{Float64},optio
 	# test Statistic
 	n = length(yl)
 	sqrt_n = sqrt(n)
-	testStat_H = sqrt_n*distVertex(bound,H0)
+	testStat_H = sqrt_n*HdistInterval(bound,H0)
 	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
 	#Simulating the asy. distribution using a MC method to establish a critical value (quantile):
