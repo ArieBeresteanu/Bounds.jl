@@ -1,7 +1,7 @@
 module setBLP
 
 import LinearAlgebra ,Base
-using Statistics, Random
+using Statistics, Random, Distributions
 
 ####################
 ###   Includes:  ###
