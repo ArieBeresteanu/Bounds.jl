@@ -161,6 +161,14 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	return results
 end
 
+function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},options::Options=default_options)
+	## computes the 1D projection of the identification set on a specific dinesion of the explanatory variable
+
+	#step 1: demean x 
+	
+
+	#step 2: Compute the formula on page 787 in BM2008
+end
 ###########################
 ###  Export Statement:  ###
 ###########################
