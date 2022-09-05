@@ -161,19 +161,63 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	return results
 end
 
-function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},options::Options=default_options)
+
+function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
+	M = [x.*yl x.*yu]
+	bound = [sum(minimum(M,dims=2)) sum(maximum(M,dims=2))]
+	s = sum(x.*x)
+	bound = bound/s
+	return bound
+end
+
+function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
 	## computes the 1D projection of the identification set on a specific dinesion of the explanatory variable
 
 	#step 1: demean x 
 	x = x-mean(x)
 
 	#step 2: Compute the formula on page 787 in BM2008
-	M = [x.*yl x.*yu]
-	H = [sum(minimum(M,dims=2)) sum(maximum(M,dims=2))]
-	s = sum(x.*x)
-	H = H/s
+	
+	bound = oneDproj(yl,yu,x)
 
-	return H
+	n = length(yl)
+	sqrt_n = sqrt(n)
+	testStat_H = sqrt_n*HdistInterval(bound,H0)
+	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
+
+	B = options.MC_iterations #number of MC iterations to compute the critical value
+	α = options.conf_level  #confidence level for the critical value1
+
+	B = options.MC_iterations #number of MC iterations to compute the critical value
+	α = options.conf_level  #confidence level for the critical value1
+	distribution = DiscreteUniform(1,n)
+
+	r_H=zeros(n)
+	r_dH = zeros(n)
+
+	for i=1:B
+		indx = rand(options.rng,distribution,n)
+		yl_b = yl[indx]
+		yu_b = yu[indx]
+		x_b  = x[indx]
+		bound_b = oneDproj(yl_b,yu_b,x_b)
+		r_H[i] = sqrt_n * HdistInterval(bound_b,bound)
+		r_dH[i] = sqrt_n * dHdistInterval(bound_b,bound)
+	end
+
+	sort!(r_H)
+	c_H = r_H[floor(Int64,α*B)]
+	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
+	Htest = testResults(testStat_H,c_H,CI_H) 
+
+	sort!(r_dH)
+	c_dH = r_dH[floor(Int64,α*B)]
+	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
+	dHtest = testResults(testStat_dH,c_dH,CI_dH)
+
+	results = Results(bound,Htest,dHtest)
+
+	return results
 end
 ###########################
 ###  Export Statement:  ###
