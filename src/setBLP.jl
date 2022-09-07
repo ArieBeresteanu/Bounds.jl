@@ -223,6 +223,6 @@ end
 ###  Export Statement:  ###
 ###########################
 
-export Options,default_options, Results, testResults, EY
+export Options,default_options, Results, testResults, EY, CI1d
 
 end #of module
