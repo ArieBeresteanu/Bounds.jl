@@ -223,6 +223,6 @@ end
 ###  Export Statement:  ###
 ###########################
 
-export Options,default_options, Results, testResults, EY, CI1d
+export Options,default_options, Results, testResults, EY, CI1d, oneDproj
 
 end #of module
