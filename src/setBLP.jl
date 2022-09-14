@@ -163,6 +163,7 @@ end
 
 
 function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
+	x = x.-mean(x)
 	M = [x.*yl x.*yu]
 	bound = [sum(minimum(M,dims=2)) sum(maximum(M,dims=2))]
 	s = sum(x.*x)
@@ -174,7 +175,7 @@ function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector
 	## computes the 1D projection of the identification set on a specific dinesion of the explanatory variable
 
 	#step 1: demean x 
-	x = x-mean(x)
+	x = x.-mean(x)
 
 	#step 2: Compute the formula on page 787 in BM2008
 	
