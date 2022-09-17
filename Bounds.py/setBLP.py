@@ -91,6 +91,7 @@ def EYboot(yl:list, yu:list, H0:list, options:Options=default_options):
     r_H = []
     r_dH = []
     rng = np.random.Generator(options.rng)
+    
     for i in range(B):
         indx = rng.integers(low=0, high=n, size=n)
         yl_b = yl[indx]
@@ -153,6 +154,7 @@ def EYasy(yl:list, yu:list, H0:list, options:Options=default_options):
     return results
 
 def oneDproj(yl:list, yu:list, x:list):
+    x = np.array(x)-np.mean(x)
     M1 = np.multiply(x, yl)
     M2 = np.multiply(x, yu)
     s = np.dot(x,x)
@@ -169,7 +171,7 @@ def CI1d(yl:list, yu:list, H0:list, x:list, options:Options=default_options):
     bound = oneDproj(yl,yu,x)
     
     n = len(yl)
-    sqrt_n = sqrt(n)
+    sqrt_n = np.sqrt(n)
     testStat_H = sqrt_n*HdistInterval(bound,H0)
     testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
@@ -178,6 +180,7 @@ def CI1d(yl:list, yu:list, H0:list, x:list, options:Options=default_options):
 
     r_H = []
     r_dH = []
+    rng = np.random.Generator(options.rng)
     
     for i in range(B):
         indx = rng.integers(low=0, high=n, size=n)
