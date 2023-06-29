@@ -171,6 +171,16 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
 	return bound
 end
 
+function oneDProj(y1::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Inf64)
+    # The function assumes that the matrix x does not contain a 1 Vector
+    our_x = x[:,cord] #taking out the coordinate of interest
+    new_x = copy(x)
+    new_x[:,cord] .= 1.0  #replacing the column with a vector of ones
+    pred_x =new_x*(inv(new_x'*new_x)*new_x'*our_x)
+    bound = oneDproj(yl,yu,pred_x)
+    return bound
+end
+
 function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
 	## computes the 1D projection of the identification set on a specific dinesion of the explanatory variable
 
