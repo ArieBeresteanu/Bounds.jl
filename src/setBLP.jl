@@ -163,12 +163,23 @@ end
 
 
 function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
+	# Here x is assumed to be one dimensional
 	x = x.-mean(x)
 	M = [x.*yl x.*yu]
-	bound = [sum(minimum(M,dims=2)) sum(maximum(M,dims=2))]
 	s = sum(x.*x)
-	bound = bound/s
-	return bound
+	lb = sum(minimum(M,dims=2)) / s
+	ub = sum(maximum(M,dims=2)) / s 
+	return [lb ub]
+end
+
+function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},j::Integer)
+	# here x is assumed to be multy dimensional
+	x = x.-mean(x, dims=1)
+	M = [x.*yl x.*yu]
+	s = sum(x.*x)
+	lb = sum(minimum(M,dims=2)) / s
+	ub = sum(maximum(M,dims=2)) / s
+	return [lb ub]
 end
 
 function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Int64)

@@ -91,6 +91,7 @@ def EYboot(yl:list, yu:list, H0:list, options:Options=default_options):
     r_H = []
     r_dH = []
     rng = np.random.Generator(options.rng)
+    
     for i in range(B):
         indx = rng.integers(low=0, high=n, size=n)
         yl_b = yl[indx]
@@ -153,11 +154,24 @@ def EYasy(yl:list, yu:list, H0:list, options:Options=default_options):
     return results
 
 def oneDproj(yl:list, yu:list, x:list):
+    # Subtract the mean of x from each element in the array
+    x = np.array(x)-np.mean(x)
+    
+    # Element-wise multiplication of x with lower and upper bounds
     M1 = np.multiply(x, yl)
     M2 = np.multiply(x, yu)
+    
+    # Compute the dot product of x with itself
     s = np.dot(x,x)
-    bound = [sum(np.minimum(M1, M2))/s, sum(np.maximum(M1, M2))/s]
-    return bound
+    
+    # Calculate the bounds
+    # Sum the element-wise minimum of M1 and M2, and divide by s
+    lower_bound = sum(np.minimum(M1, M2))/s
+    # Sum the element-wise maximum of M1 and M2, and divide by s
+    upper_bound = sum(np.maximum(M1, M2))/s
+    
+    # Return the bounds as a list
+    return [lower_bound, upper_bound]
 
 def CI1d(yl:list, yu:list, H0:list, x:list, options:Options=default_options):
     ## computes the 1D projection of the identification set on a specific dinesion of the explanatory variable
@@ -169,7 +183,7 @@ def CI1d(yl:list, yu:list, H0:list, x:list, options:Options=default_options):
     bound = oneDproj(yl,yu,x)
     
     n = len(yl)
-    sqrt_n = sqrt(n)
+    sqrt_n = np.sqrt(n)
     testStat_H = sqrt_n*HdistInterval(bound,H0)
     testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
@@ -178,6 +192,7 @@ def CI1d(yl:list, yu:list, H0:list, x:list, options:Options=default_options):
 
     r_H = []
     r_dH = []
+    rng = np.random.Generator(options.rng)
     
     for i in range(B):
         indx = rng.integers(low=0, high=n, size=n)
