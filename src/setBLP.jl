@@ -172,16 +172,6 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
 	return [lb ub]
 end
 
-function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},j::Integer)
-	# here x is assumed to be multy dimensional
-	x = x.-mean(x, dims=1)
-	M = [x.*yl x.*yu]
-	s = sum(x.*x)
-	lb = sum(minimum(M,dims=2)) / s
-	ub = sum(maximum(M,dims=2)) / s
-	return [lb ub]
-end
-
 function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Int64)
     # The function assumes that the matrix x does not contain a 1 Vector
     our_x = x[:,cord] #taking out the coordinate of interest
