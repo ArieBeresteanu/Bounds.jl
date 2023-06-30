@@ -171,7 +171,7 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
 	return bound
 end
 
-function oneDProj(y1::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Inf64)
+function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Int64)
     # The function assumes that the matrix x does not contain a 1 Vector
     our_x = x[:,cord] #taking out the coordinate of interest
     new_x = copy(x)
