@@ -184,9 +184,9 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::
 end
 
 function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{::Symbol},cord::Int64)
-	y_l = df[!,yl]
-	y_u = df[!,yu]
-	new_x =df[!,x]
+	y_l = copy(df[!,yl])
+	y_u = copy(df[!,yu])
+	new_x =Matrix(df[!,x])
 	bound = oneDproj(y_l,y_u,new_x)
 	return bound
 end
