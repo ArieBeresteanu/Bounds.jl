@@ -178,8 +178,17 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::
     new_x = copy(x)
     new_x[:,cord] .= 1.0  #replacing the column with a vector of ones
     pred_x =new_x*(inv(new_x'*new_x)*new_x'*our_x)
-    bound = oneDproj(yl,yu,pred_x)
+	res_x = our_x - pred_x
+    bound = oneDproj(yl,yu,res_x)
     return bound
+end
+
+function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{::Symbol},cord::Int64)
+	y_l = df[!,yl]
+	y_u = df[!,yu]
+	new_x =df[!,x]
+	bound = oneDproj(y_l,y_u,new_x)
+	return bound
 end
 
 function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
