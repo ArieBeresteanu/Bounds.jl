@@ -2,6 +2,7 @@ module setBLP
 
 import LinearAlgebra ,Base
 using Statistics, Random, Distributions
+using DataFrames
 
 ####################
 ###   Includes:  ###
@@ -183,11 +184,11 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::
     return bound
 end
 
-function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{::Symbol},cord::Int64)
+function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::Int64)
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
 	new_x =Matrix(df[!,x])
-	bound = oneDproj(y_l,y_u,new_x)
+	bound = oneDproj(y_l,y_u,new_x,cord)
 	return bound
 end
 
