@@ -162,16 +162,22 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	return results
 end
 
+############################
+## Vector/Matrix versions ##
+############################
+
+# 1. x is assumed to be one dimensional
 
 function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
-	# Here x is assumed to be one dimensional
-	x = x.-mean(x)
+	x = x.-mean(x) #demean x
 	M = [x.*yl x.*yu]
 	s = sum(x.*x)
 	lb = sum(minimum(M,dims=2)) / s
 	ub = sum(maximum(M,dims=2)) / s 
 	return [lb ub]
 end
+
+# 2. X is assumed to be a matrix of covariates and a coordinate is specified
 
 function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Int64)
     # The function assumes that the matrix x does not contain a 1 Vector
@@ -183,6 +189,26 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::
     bound = oneDproj(yl,yu,res_x)
     return bound
 end
+
+# 3. X is assumed to be a matrix of covariates and a coordinate is NOT specified
+
+function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
+    # The function assumes that the matrix x does not contain a 1 Vector
+	ncols = size(x,2)
+	bounds = []
+    for cord in 1:ncols
+		our_x = x[:,cord]
+		new_x = copy(x)
+		new_x[:,cord] .= 1.0  #replacing the column with a vector of ones
+		pred_x =new_x*(inv(new_x'*new_x)*new_x'*our_x)
+		res_x = our_x - pred_x
+    	bound = oneDproj(yl,yu,res_x)
+		push!(bounds,bound)
+	end
+    return bounds
+end
+
+
 
 function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::Int64)
 	y_l = copy(df[!,yl])
