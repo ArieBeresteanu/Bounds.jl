@@ -177,7 +177,7 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
 	return [lb ub]
 end
 
-# 2. X is assumed to be a matrix of covariates and a coordinate is specified
+# 2. X is assumed to be a matrix of covariates and a single coordinate is specified
 
 function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Int64)
     # The function assumes that the matrix x does not contain a 1 Vector
@@ -190,7 +190,24 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::
     return bound
 end
 
-# 3. X is assumed to be a matrix of covariates and a coordinate is NOT specified
+# 3. X is assumed to be a matrix of covariates and a vector of coordinates is specified
+
+function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cords::Vector{Int64})
+    # The function assumes that the matrix x does not contain a 1 Vector
+	bounds = []
+    for cord in cords
+		our_x = x[:,cord]
+		new_x = copy(x)
+		new_x[:,cord] .= 1.0  #replacing the column with a vector of ones
+		pred_x =new_x*(inv(new_x'*new_x)*new_x'*our_x)
+		res_x = our_x - pred_x
+    	bound = oneDproj(yl,yu,res_x)
+		push!(bounds,bound)
+	end
+    return bound
+end
+
+# 4. X is assumed to be a matrix of covariates and a coordinate is NOT specified
 
 function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
     # The function assumes that the matrix x does not contain a 1 Vector
@@ -208,7 +225,9 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
     return bounds
 end
 
-
+#########################
+## Data frame versions ##
+#########################
 
 function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::Int64)
 	y_l = copy(df[!,yl])
