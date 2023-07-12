@@ -229,11 +229,11 @@ end
 ## Data frame versions ##
 #########################
 
-function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol,cord::Int64)
+function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol)
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
 	new_x = Vector(df[!,x])
-	bound = oneDproj(y_l,y_u,new_x,cord)
+	bound = oneDproj(y_l,y_u,new_x)
 	return bound
 end
 
