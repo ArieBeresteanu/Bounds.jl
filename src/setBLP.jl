@@ -229,13 +229,22 @@ end
 ## Data frame versions ##
 #########################
 
-function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::Int64)
+function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol,cord::Int64)
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
-	new_x =Matrix(df[!,x])
+	new_x = Vector(df[!,x])
 	bound = oneDproj(y_l,y_u,new_x,cord)
 	return bound
 end
+
+function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::Int64)
+	y_l = copy(df[!,yl])
+	y_u = copy(df[!,yu])
+	new_x = Matrix(df[!,x])
+	bounds = oneDproj(y_l,y_u,new_x,cord)
+	return bounds
+end
+
 
 function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
 	## computes the 1D projection of the identification set on a specific dinesion of the explanatory variable
