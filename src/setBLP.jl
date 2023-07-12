@@ -237,6 +237,14 @@ function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol,cord::Int64)
 	return bound
 end
 
+function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol})
+	y_l = copy(df[!,yl])
+	y_u = copy(df[!,yu])
+	new_x = Matrix(df[!,x])
+	bounds = oneDproj(y_l,y_u,new_x)
+	return bounds
+end
+
 function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::Int64)
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
