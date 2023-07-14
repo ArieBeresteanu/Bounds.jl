@@ -3,6 +3,7 @@
 #########################
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 
 from vertex import *
 # Class: Vertex
@@ -30,8 +31,8 @@ class Options:
         self.conf_level = conf_level
         
 class testResults:
-    def __init__(self, testStat, criticalVal, ConfidenceInterval):
-        self.testStat = testStat 
+    def __init__(self, destStat, criticalVal, ConfidenceInterval):
+        self.destStat = destStat 
         self.criticalVal = criticalVal
         self.ConfidenceInterval = ConfidenceInterval
         
@@ -91,7 +92,7 @@ def EYboot(yl:list, yu:list, H0:list, options:Options=default_options):
     r_H = []
     r_dH = []
     rng = np.random.Generator(options.rng)
-    
+
     for i in range(B):
         indx = rng.integers(low=0, high=n, size=n)
         yl_b = yl[indx]
@@ -153,25 +154,77 @@ def EYasy(yl:list, yu:list, H0:list, options:Options=default_options):
     results = Results(bound, Htest, dHtest)
     return results
 
-def oneDproj(yl:list, yu:list, x:list):
-    # Subtract the mean of x from each element in the array
+def oneDproj_single(yl:list, yu:list, x:list):
+    # yl, yu, and x are lists 
     x = np.array(x)-np.mean(x)
-    
-    # Element-wise multiplication of x with lower and upper bounds
     M1 = np.multiply(x, yl)
     M2 = np.multiply(x, yu)
-    
-    # Compute the dot product of x with itself
     s = np.dot(x,x)
+    bound = [sum(np.minimum(M1, M2))/s, sum(np.maximum(M1, M2))/s]
+    return bound
+
+def oneDproj_multi(yl:list, yu:list, x, cord = None):
+    # yl(yu) is a list 
+    # x is a list (single variable), or matrix (multiple variable)
     
-    # Calculate the bounds
-    # Sum the element-wise minimum of M1 and M2, and divide by s
-    lower_bound = sum(np.minimum(M1, M2))/s
-    # Sum the element-wise maximum of M1 and M2, and divide by s
-    upper_bound = sum(np.maximum(M1, M2))/s
+    if type(x) == list:
+        bound = oneDproj_single(yl, yu, r)
+    elif len(x.shape) == 1:
+        bound = oneDproj_single(yl, yu, r)
+    else: 
+        # add constant to x, constant is in column 0
+        x = sm.add_constant(x)
+        if cord is not None: 
+            # update cord after adding constant
+            cord += 1
+
+            # linear projection of x_cord on x_(-cord)
+            r = sm.OLS(x.iloc[:, cord], x.drop(x.columns[cord], axis = 1)).fit().resid
+            bound = oneDproj_single(yl, yu, r)
+        else:
+            bound = []
+            for j in range(x.shape[1]-1):
+                j+=1
+                r = sm.OLS(x.iloc[:, j], x.drop(x.columns[j], axis = 1)).fit().resid
+                bound.append(oneDproj_single(yl, yu, r))
+    return bound
+
+def oneDproj(yl, yu, x, cord = None, data = None):
+    # yl(yu) is a vector (variable) or string (variable name)
+    # x is a vector (single variable), or matrix (multiple variable), 
+    # or string (single variable name in data), or a list of string (multiple variable name in data)
+    # data is a dataframe, optional
     
-    # Return the bounds as a list
-    return [lower_bound, upper_bound]
+    if type(yl) == str:
+        if data is not None:
+            yl = data[yl]
+        else:
+            raise Exception(f"Please provide data that contains {yl}")
+    if type(yu) == str:
+        if data is not None:
+            yu = data[yu]
+        else:
+            raise Exception(f"Please provide data that contains {yu}")
+    
+    if type(x) == str: # if x is a variable name
+        if data is not None:
+            x = data[x]
+            bound = oneDproj_single(yl, yu, x)
+        else:
+            raise Exception(f"Please provide data that contains {x}")
+    elif type(x) == list and type(x[0]) == str : # if x is a list of variable names
+        if data is None:
+            raise Exception(f"Please provide data that contains {x}")
+        else: 
+            x = data[x]
+            bound = oneDproj_multi(yl, yu, x, cord)            
+    else: # if x is a vector or matrix
+        if len(x.shape)==1: #vector
+            bound = oneDproj_single(yl, yu, x)
+        else: #matrix
+            bound = oneDproj_multi(yl, yu, x, cord)
+            
+    return bound  
 
 def CI1d(yl:list, yu:list, H0:list, x:list, options:Options=default_options):
     ## computes the 1D projection of the identification set on a specific dinesion of the explanatory variable
@@ -214,4 +267,4 @@ def CI1d(yl:list, yu:list, H0:list, x:list, options:Options=default_options):
     dHtest = testResults(testStat_dH,c_dH,CI_dH)
        
     results = Results(bound, Htest, dHtest)
-    return results  
+    return results
