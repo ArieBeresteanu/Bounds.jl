@@ -162,9 +162,11 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	return results
 end
 
-############################
+###########################
+###  oneDproj functions ###
+###########################
+
 ## Vector/Matrix versions ##
-############################
 
 # 1. x is assumed to be one dimensional
 
@@ -225,9 +227,7 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
     return bounds
 end
 
-#########################
 ## Data frame versions ##
-#########################
 
 function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol)
 	y_l = copy(df[!,yl])
@@ -252,6 +252,8 @@ function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::I
 	bounds = oneDproj(y_l,y_u,new_x,cord)
 	return bounds
 end
+
+###################### End of oneDproj functions ######################################
 
 
 function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
