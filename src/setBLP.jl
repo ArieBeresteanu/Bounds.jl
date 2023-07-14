@@ -257,7 +257,7 @@ end
 
 
 function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
-	## computes the 1D projection of the identification set on a specific dinesion of the explanatory variable
+	## computes the 1D projection of the identification set on a specific dimesion of the explanatory variable
 
 	#step 1: demean x 
 	x = x.-mean(x)
@@ -270,9 +270,6 @@ function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector
 	sqrt_n = sqrt(n)
 	testStat_H = sqrt_n*HdistInterval(bound,H0)
 	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
-
-	B = options.MC_iterations #number of MC iterations to compute the critical value
-	α = options.conf_level  #confidence level for the critical value1
 
 	B = options.MC_iterations #number of MC iterations to compute the critical value
 	α = options.conf_level  #confidence level for the critical value1
