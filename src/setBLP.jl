@@ -259,17 +259,20 @@ end
 function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
 	## computes the 1D projection of the identification set on a specific dimesion of the explanatory variable
 
-	#step 1: demean x 
-	x = x.-mean(x)
-
-	#step 2: Compute the formula on page 787 in BM2008
+	#step 1: Compute the bounds on page 787 in BM2008
 	
 	bound = oneDproj(yl,yu,x)
+	LB = bound[1]
+	UB = bound[2]
+
+	#step 2: Compute the test statisticss
 
 	n = length(yl)
 	sqrt_n = sqrt(n)
 	testStat_H = sqrt_n*HdistInterval(bound,H0)
 	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
+
+	#step 3: Bootstrap iterationss 
 
 	B = options.MC_iterations #number of MC iterations to compute the critical value
 	α = options.conf_level  #confidence level for the critical value1
@@ -291,12 +294,12 @@ function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector
 	sort!(r_H)
 	c_H = r_H[floor(Int64,α*B)]
 	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
-	Htest = testResults(testStat_H,c_H,CI_H) 
+	Htest = TestResults(testStat_H,c_H,CI_H) 
 
 	sort!(r_dH)
 	c_dH = r_dH[floor(Int64,α*B)]
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
-	dHtest = testResults(testStat_dH,c_dH,CI_dH)
+	dHtest = TestResults(testStat_dH,c_dH,CI_dH)
 
 	results = Results(bound,Htest,dHtest)
 
