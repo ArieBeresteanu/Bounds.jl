@@ -85,6 +85,7 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	# test Statistic
 	n = length(yl)
 	sqrt_n = sqrt(n)
+	bound = vec(bound)
 	testStat_H = sqrt_n*HdistInterval(bound,H0)
 	testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
@@ -261,7 +262,8 @@ function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector
 
 	#step 1: Compute the bounds on page 787 in BM2008
 	
-	bound = oneDproj(yl,yu,x)
+	
+	bound = vec(oneDproj(yl,yu,x)) #vectorizing is necessary because the HdistInterval function wants two vectrs as input
 	LB = bound[1]
 	UB = bound[2]
 
@@ -286,7 +288,7 @@ function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector
 		yl_b = yl[indx]
 		yu_b = yu[indx]
 		x_b  = x[indx]
-		bound_b = oneDproj(yl_b,yu_b,x_b)
+		bound_b = vec(oneDproj(yl_b,yu_b,x_b))
 		r_H[i] = sqrt_n * HdistInterval(bound_b,bound)
 		r_dH[i] = sqrt_n * dHdistInterval(bound_b,bound)
 	end
