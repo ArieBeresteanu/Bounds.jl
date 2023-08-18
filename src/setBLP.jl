@@ -28,7 +28,7 @@ mutable struct Options
 	conf_level::Float64
 end
 
-mutable struct testResults
+mutable struct TestResults
 	testStat :: Real
 	criticalVal :: Real
 	ConfidenceInterval :: Vector{Real}
@@ -36,8 +36,8 @@ end
 
 mutable struct Results
 	bound :: Vector{<:Real}
-	Htest :: testResults
-	dHtest :: testResults
+	Htest :: TestResults
+	dHtest :: TestResults
 end
 
 
@@ -106,12 +106,12 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	sort!(r_H)
 	c_H = r_H[floor(Int64,α*B)]
 	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
-	Htest = testResults(testStat_H,c_H,CI_H) 
+	Htest = TestResults(testStat_H,c_H,CI_H) 
 
 	sort!(r_dH)
 	c_dH = r_dH[floor(Int64,α*B)]
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
-	dHtest = testResults(testStat_dH,c_dH,CI_dH)
+	dHtest = TestResults(testStat_dH,c_dH,CI_dH)
 
 	results = Results(bound,Htest,dHtest)
 
@@ -148,14 +148,14 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	sort!(r_H,dims=2)
 	c_H = r_H[floor(Int64,α*B)]
 	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
-	Htest = testResults(testStat_H,c_H,CI_H) 
+	Htest = TestResults(testStat_H,c_H,CI_H) 
 
 	#test based on directed Hausdorff distance:
 	r_dH = maximum([plus.(rr[1,:]) minus.(rr[2,:])],dims=2)
 	sort!(r_dH,dims=1)
 	c_dH = r_dH[floor(Int64,α*B)]
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
-	dHtest = testResults(testStat_dH,c_dH,CI_dH)
+	dHtest = TestResults(testStat_dH,c_dH,CI_dH)
 
 	results = Results(bound,Htest,dHtest)
 
@@ -309,6 +309,6 @@ end
 ###  Export Statement:  ###
 ###########################
 
-export Options,default_options, Results, testResults, EY, CI1d, oneDproj
+export Options,default_options, Results, TestResults, EY, CI1d, oneDproj
 
 end #of module
