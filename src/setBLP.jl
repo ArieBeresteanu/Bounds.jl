@@ -28,6 +28,14 @@ mutable struct Options
 	conf_level::Float64
 end
 
+function Base.show(o::Options; io::IO=stdout)
+	println(io, "Options:")
+	println(io, "  MC iterations: ", o.MC_iterations)
+	println(io, "  Seed: ", o.seed)
+	println(io, "  RNG: ", o.rng)
+	println(io, "  Confidence level: ", o.conf_level)
+  end
+  
 mutable struct TestResults
 	testStat :: Real
 	criticalVal :: Real
@@ -35,11 +43,25 @@ mutable struct TestResults
 end
 
 mutable struct Results
+	null  :: Vector{<:Real}
 	bound :: Vector{<:Real}
 	Htest :: TestResults
 	dHtest :: TestResults
 end
 
+function Base.show(r::Results; io::IO=stdout, digits::Int=4)
+    print(io, "Results: \n")
+    print(io, "  Null: $(round.(r.null, digits=digits))\n") 
+    print(io, "  Bound: $(round.(r.bound, digits=digits))\n") 
+    print(io, "  Htest: \n")
+    print(io, "    Test Stat: $(round(r.Htest.testStat, digits=digits))\n")
+    print(io, "    Critical Value: $(round(r.Htest.criticalVal, digits=digits))\n")
+    print(io, "    Confidence Interval: $(round.(r.Htest.ConfidenceInterval, digits=digits))\n")
+    print(io, "  dHtest: \n")
+    print(io, "    Test Stat: $(round(r.dHtest.testStat, digits=digits))\n")
+    print(io, "    Critical Value: $(round(r.dHtest.criticalVal, digits=digits))\n")
+    print(io, "    Confidence Interval: $(round.(r.dHtest.ConfidenceInterval, digits=digits))\n")
+end
 
 #####################
 ###   Constants   ###
@@ -303,7 +325,7 @@ function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
 	dHtest = TestResults(testStat_dH,c_dH,CI_dH)
 
-	results = Results(bound,Htest,dHtest)
+	results = Results(H0,bound,Htest,dHtest)
 
 	return results #,r_H,r_dH
 end
