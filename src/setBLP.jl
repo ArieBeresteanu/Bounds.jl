@@ -45,7 +45,7 @@ end
 ###   Constants   ###
 #####################
 
-const default_options = Options(2000,15217,MersenneTwister(15217),0.95)
+const default_options = Options(2000,15217,MersenneTwister(),0.95)
 
 
 #####################
@@ -280,8 +280,8 @@ function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector
 	α = options.conf_level  #confidence level for the critical value1
 	distribution = DiscreteUniform(1,n)
 
-	r_H=zeros(n)
-	r_dH = zeros(n)
+	r_H=zeros(B)
+	r_dH = zeros(B)
 
 	for i=1:B
 		indx = rand(options.rng,distribution,n)
@@ -305,7 +305,7 @@ function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector
 
 	results = Results(bound,Htest,dHtest)
 
-	return results
+	return results #,r_H,r_dH
 end
 ###########################
 ###  Export Statement:  ###
