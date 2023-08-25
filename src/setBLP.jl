@@ -43,10 +43,10 @@ mutable struct TestResults
 end
 
 mutable struct Results
-	null  :: Vector{<:Real}
-	bound :: Vector{<:Real}
-	Htest :: TestResults
-	dHtest :: TestResults
+	null  :: Union{Vector{<:Real},Nothing} # Value is optional
+	bound :: Vector{<:Real} 			   # This field must have a value
+	Htest :: Union{TestResults,Nothing}    # Value is optional
+	dHtest :: Union{TestResults,Nothing}   # Value is optional
 end
 
 function Base.show(r::Results; io::IO=stdout, digits::Int=4)
@@ -136,7 +136,7 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
 	dHtest = TestResults(testStat_dH,c_dH,CI_dH)
 
-	results = Results(bound,Htest,dHtest)
+	results = Results(H0,bound,Htest,dHtest)
 
 	return results
 end
@@ -279,7 +279,11 @@ end
 ###################### End of oneDproj functions ######################################
 
 
-function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
+function CI1d(yl::Vector{<:Real},
+			  yu::Vector{<:Real},
+			  x::Vector{<:Real},
+			  options::Options=default_options; 
+			  CI=true,H0::Vector{<:Real}=[])
 	## computes the 1D projection of the identification set on a specific dimesion of the explanatory variable
 
 	#step 1: Compute the bounds on page 787 in BM2008
@@ -327,7 +331,7 @@ function CI1d(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real},H0::Vector
 
 	results = Results(H0,bound,Htest,dHtest)
 
-	return results #,r_H,r_dH
+	return results 
 end
 ###########################
 ###  Export Statement:  ###
