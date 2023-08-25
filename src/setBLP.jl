@@ -37,9 +37,9 @@ function Base.show(o::Options; io::IO=stdout)
   end
   
 mutable struct TestResults
-	testStat :: Real
-	criticalVal :: Real
-	ConfidenceInterval :: Vector{Real}
+	ConfidenceInterval :: Vector{Real} #value is necessary
+	criticalVal :: Union{Real,Nothing} #value is optional
+	testStat :: Union{Real,Nothing} #value is optional
 end
 
 mutable struct Results
@@ -283,15 +283,19 @@ function CI1d(yl::Vector{<:Real},
 			  yu::Vector{<:Real},
 			  x::Vector{<:Real},
 			  options::Options=default_options; 
-			  CI=true,H0::Vector{<:Real}=[])
+			  CI=true,
+			  H0::Vector{<:Real}=[])
 	## computes the 1D projection of the identification set on a specific dimesion of the explanatory variable
 
 	#step 1: Compute the bounds on page 787 in BM2008
 	
-	
 	bound = vec(oneDproj(yl,yu,x)) #vectorizing is necessary because the HdistInterval function wants two vectrs as input
 	LB = bound[1]
 	UB = bound[2]
+
+	if !CI  #all we want is a point estimator
+		res = Results(nothing,bound,nothing,nothing)
+	else
 
 	#step 2: Compute the test statisticss
 
