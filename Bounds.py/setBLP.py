@@ -168,9 +168,9 @@ def oneDproj_multi(yl:list, yu:list, x, cord = None):
     # x is a list (single variable), or matrix (multiple variable)
     
     if type(x) == list:
-        bound = oneDproj_single(yl, yu, r)
+        bound = oneDproj_single(yl, yu, x)
     elif len(x.shape) == 1:
-        bound = oneDproj_single(yl, yu, r)
+        bound = oneDproj_single(yl, yu, x)
     else: 
         # add constant to x, constant is in column 0
         x = sm.add_constant(x)
@@ -193,8 +193,15 @@ def oneDproj(yl, yu, x, cord = None, data = None, CI = True, H0 = None, options=
     # yl(yu) is a vector (variable) or string (variable name)
     # x is a vector (single variable), or matrix (multiple variable), 
     # or string (single variable name in data), or a list of string (multiple variable name in data)
-    # data is a dataframe, optional
+    # data is a dataframe, optionalde
     
+    length_cord = 0 # if x is a vector and cord is None
+    if cord is not None:
+        if type(cord)==int:
+            length_cord = 1
+        else:
+            length_cord = len(cord)
+
     if type(yl) == str:
         if data is not None:
             yl = data[yl]
@@ -206,36 +213,48 @@ def oneDproj(yl, yu, x, cord = None, data = None, CI = True, H0 = None, options=
         else:
             raise Exception(f"Please provide data that contains {yu}")
     
-    if type(x) == str: # if x is a variable name
+    if type(x) == str: 
+    # if x is a variable name
         if data is not None:
             x = data[x]
             bound = oneDproj_single(yl, yu, x)
         else:
             raise Exception(f"Please provide data that contains {x}")
-    elif type(x) == list and type(x[0]) == str : # if x is a list of variable names
+    elif type(x) == list and type(x[0]) == str : 
+    # if x is a list of variable names
         if data is None:
             raise Exception(f"Please provide data that contains {x}")
         else: 
             x = data[x]
-            bound = oneDproj_multi(yl, yu, x, cord)            
-    else: # if x is a vector or matrix
-        if len(x.shape)==1: #vector
+            bound = oneDproj_multi(yl, yu, x, cord)             
+    else: 
+    # if x is a vector or matrix
+        if len(x.shape)==1: 
+        #vector
             bound = oneDproj_single(yl, yu, x)
-        else: #matrix
+        else: 
+        #matrix
             bound = oneDproj_multi(yl, yu, x, cord)
-    
+            if cord is None:
+            # calculate for each column of x
+                length_cord = x.shape[1]
+                cord = range(length_cord)            
+
     if CI == False:
-        return bound
-    elif H0 is None:
         return bound
     else:
         LB = bound[0]
         UB = bound[1]
-        
+    
         n = len(yl)
         sqrt_n = np.sqrt(n)
-        testStat_H = sqrt_n*HdistInterval(bound,H0)
-        testStat_dH = sqrt_n*dHdistInterval(bound,H0)
+
+        if H0 is None:
+            testStat_H = None
+            testStat_dH = None
+        else:
+            testStat_H = sqrt_n*HdistInterval(bound,H0)
+            testStat_dH = sqrt_n*dHdistInterval(bound,H0)
 
         B = options.MC_iterations #number of MC iterations to compute the critical value
         alpha = options.conf_level  #confidence level for the critical value1
@@ -244,26 +263,55 @@ def oneDproj(yl, yu, x, cord = None, data = None, CI = True, H0 = None, options=
         r_dH = []
         rng = np.random.Generator(options.rng)
 
-        for i in range(B):
-            indx = rng.integers(low=0, high=n, size=n)
-            yl_b = yl[indx]
-            yu_b = yu[indx]
-            x_b = x[indx]
-            bound_b = oneDproj(yl_b,yu_b,x_b)
-            r_H.append(sqrt_n*HdistInterval(bound_b, bound))
-            r_dH.append(sqrt_n*dHdistInterval(bound_b, bound))
+        if length_cord>1:
+            results =dict()
+            for j in cord:
+                for i in range(B):
+                    indx = rng.integers(low=0, high=n, size=n)
+                    yl_b = yl[indx]
+                    yu_b = yu[indx]
+                    x_b = list(x.iloc[indx,j])
 
-        r_H.sort()
-        c_H = r_H[np.floor(alpha*B).astype(int)]
-        CI_H = [LB - c_H/sqrt_n, UB+c_H/sqrt_n]
-        Htest = TestResults(testStat_H,c_H,CI_H) 
+                    bound_b = oneDproj_single(yl_b,yu_b,x_b)
+                    r_H.append(sqrt_n*HdistInterval(bound_b, bound[j]))
+                    r_dH.append(sqrt_n*dHdistInterval(bound_b, bound[j]))
 
-        r_dH.sort()
-        c_dH = r_dH[np.floor(alpha*B).astype(int)]
-        CI_dH = [LB - c_dH/sqrt_n, UB + c_dH/sqrt_n]
-        dHtest = TestResults(testStat_dH,c_dH,CI_dH)
+                r_H.sort()
+                c_H = r_H[np.floor(alpha*B).astype(int)]
+                CI_H = [LB - c_H/sqrt_n, UB+c_H/sqrt_n]
+                Htest = TestResults(testStat_H,c_H,CI_H) 
 
-        results = Results(bound, Htest, dHtest)
+                r_dH.sort()
+                c_dH = r_dH[np.floor(alpha*B).astype(int)]
+                CI_dH = [LB - c_dH/sqrt_n, UB + c_dH/sqrt_n]
+                dHtest = TestResults(testStat_dH,c_dH,CI_dH)
+
+                results[j]=Results(bound, Htest, dHtest)                     
+        else:
+            if length_cord ==1:
+                x = x.iloc[:,cord] 
+            for i in range(B):
+                indx = rng.integers(low=0, high=n, size=n)
+                yl_b = yl[indx]
+                yu_b = yu[indx]
+                x_b = x[indx]
+
+                bound_b = oneDproj_single(yl_b,yu_b,x_b)
+                r_H.append(sqrt_n*HdistInterval(bound_b, bound))
+                r_dH.append(sqrt_n*dHdistInterval(bound_b, bound))
+
+            r_H.sort()
+            c_H = r_H[np.floor(alpha*B).astype(int)]
+            CI_H = [LB - c_H/sqrt_n, UB+c_H/sqrt_n]
+            Htest = TestResults(testStat_H,c_H,CI_H) 
+
+            r_dH.sort()
+            c_dH = r_dH[np.floor(alpha*B).astype(int)]
+            CI_dH = [LB - c_dH/sqrt_n, UB + c_dH/sqrt_n]
+            dHtest = TestResults(testStat_dH,c_dH,CI_dH)
+
+            results = Results(bound, Htest, dHtest)
+        
         return results
 
 def CI1d(yl:list, yu:list, x:list, H0:list, options:Options=default_options):
