@@ -37,9 +37,9 @@ function Base.show(o::Options; io::IO=stdout)
   end
   
 mutable struct TestResults
-	ConfidenceInterval :: Vector{Real} #value is necessary
-	criticalVal :: Union{Real,Nothing} #value is optional
-	testStat :: Union{Real,Nothing} #value is optional
+	ConfidenceInterval :: Union{Vector{<:Real},Nothing} #value is necessary
+	criticalVal :: Union{<:Real,Nothing} #value is optional
+	testStat :: Union{<:Real,Nothing} #value is optional
 end
 
 mutable struct Results
@@ -185,15 +185,15 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	return results
 end
 
-###########################
-###  oneDproj functions ###
-###########################
+#############################
+###  projection functions ###
+#############################
 
 ## Vector/Matrix versions ##
 
 # 1. x is assumed to be one dimensional
 
-function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
+function projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
 	x = x.-mean(x) #demean x
 	M = [x.*yl x.*yu]
 	s = sum(x.*x)
@@ -204,20 +204,20 @@ end
 
 # 2. X is assumed to be a matrix of covariates and a single coordinate is specified
 
-function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Int64)
+function projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Int64)
     # The function assumes that the matrix x does not contain a 1 Vector
     our_x = x[:,cord] #taking out the coordinate of interest
     new_x = copy(x)
     new_x[:,cord] .= 1.0  #replacing the column with a vector of ones
     pred_x =new_x*(inv(new_x'*new_x)*new_x'*our_x)
 	res_x = our_x - pred_x
-    bound = oneDproj(yl,yu,res_x)
+    bound = projection(yl,yu,res_x)
     return bound
 end
 
 # 3. X is assumed to be a matrix of covariates and a vector of coordinates is specified
 
-function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cords::Vector{Int64})
+function projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cords::Vector{Int64})
     # The function assumes that the matrix x does not contain a 1 Vector
 	bounds = []
     for cord in cords
@@ -226,7 +226,7 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cords:
 		new_x[:,cord] .= 1.0  #replacing the column with a vector of ones
 		pred_x =new_x*(inv(new_x'*new_x)*new_x'*our_x)
 		res_x = our_x - pred_x
-    	bound = oneDproj(yl,yu,res_x)
+    	bound = projection(yl,yu,res_x)
 		push!(bounds,bound)
 	end
     return bound
@@ -234,7 +234,7 @@ end
 
 # 4. X is assumed to be a matrix of covariates and a coordinate is NOT specified
 
-function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
+function projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
     # The function assumes that the matrix x does not contain a 1 Vector
 	ncols = size(x,2)
 	bounds = []
@@ -244,7 +244,7 @@ function oneDproj(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
 		new_x[:,cord] .= 1.0  #replacing the column with a vector of ones
 		pred_x =new_x*(inv(new_x'*new_x)*new_x'*our_x)
 		res_x = our_x - pred_x
-    	bound = oneDproj(yl,yu,res_x)
+    	bound = projection(yl,yu,res_x)
 		push!(bounds,bound)
 	end
     return bounds
@@ -252,34 +252,34 @@ end
 
 ## Data frame versions ##
 
-function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol)
+function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol)
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
 	new_x = Vector(df[!,x])
-	bound = oneDproj(y_l,y_u,new_x)
+	bound = projection(y_l,y_u,new_x)
 	return bound
 end
 
-function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol})
+function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol})
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
 	new_x = Matrix(df[!,x])
-	bounds = oneDproj(y_l,y_u,new_x)
+	bounds = projection(y_l,y_u,new_x)
 	return bounds
 end
 
-function oneDproj(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::Int64)
+function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::Int64)
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
 	new_x = Matrix(df[!,x])
-	bounds = oneDproj(y_l,y_u,new_x,cord)
+	bounds = projection(y_l,y_u,new_x,cord)
 	return bounds
 end
 
-###################### End of oneDproj functions ######################################
+###################### End of projection functions ######################################
 
 
-function CI1d(yl::Vector{<:Real},
+function oneDproj(yl::Vector{<:Real},
 			  yu::Vector{<:Real},
 			  x::Vector{<:Real};
 			  options::Options=default_options, 
@@ -289,7 +289,7 @@ function CI1d(yl::Vector{<:Real},
 
 	#step 1: Compute the bounds on page 787 in BM2008
 	
-	bound = vec(oneDproj(yl,yu,x)) #vectorizing is necessary because the HdistInterval function wants two vectrs as input
+	bound = vec(projection(yl,yu,x)) #vectorizing is necessary because the HdistInterval function wants two vectrs as input
 	LB = bound[1]
 	UB = bound[2]
 
@@ -314,7 +314,7 @@ function CI1d(yl::Vector{<:Real},
 			yl_b = yl[indx]
 			yu_b = yu[indx]
 			x_b  = x[indx]
-			bound_b = vec(oneDproj(yl_b,yu_b,x_b))
+			bound_b = vec(projection(yl_b,yu_b,x_b))
 			r_H[i] = sqrt_n * HdistInterval(bound_b,bound)
 			r_dH[i] = sqrt_n * dHdistInterval(bound_b,bound)
 		end
@@ -328,8 +328,8 @@ function CI1d(yl::Vector{<:Real},
 		CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
 
 		if isnothing(H0) # no testing
-			Htest = TestResults(c_H,CI_H,nothing) 
-			dHtest = TestResults(c_dH,CI_dH,nothing)
+			Htest = TestResults(CI_H,c_H,nothing) 
+			dHtest = TestResults(CI_dH,c_dH,nothing)
 
 			results = Results(bound,nothing,Htest,dHtest)
 			return results
@@ -354,6 +354,6 @@ end
 ###  Export Statement:  ###
 ###########################
 
-export Options,default_options, Results, TestResults, EY, CI1d, oneDproj
+export Options,default_options, Results, TestResults, EY, oneDproj, projection
 
 end #of module
