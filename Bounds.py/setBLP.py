@@ -226,7 +226,10 @@ def oneDproj(yl, yu, x, cord = None, data = None, CI = True, H0 = None, options=
             raise Exception(f"Please provide data that contains {x}")
         else: 
             x = data[x]
-            bound = oneDproj_multi(yl, yu, x, cord)             
+            bound = oneDproj_multi(yl, yu, x, cord)  
+            if cord is None:
+                length_cord = x.shape[1]
+                cord = range(length_cord)           
     else: 
     # if x is a vector or matrix
         if len(x.shape)==1: 
@@ -236,15 +239,18 @@ def oneDproj(yl, yu, x, cord = None, data = None, CI = True, H0 = None, options=
         #matrix
             bound = oneDproj_multi(yl, yu, x, cord)
             if cord is None:
-            # calculate for each column of x
-                length_cord = x.shape[1]
-                cord = range(length_cord)            
+                length_cord = x.shape[1] 
+                cord = range(length_cord)           
 
     if CI == False:
         return bound
     else:
-        LB = bound[0]
-        UB = bound[1]
+        if length_cord == 0 or 1: # if bound contains only one interval
+            LB = bound[0]
+            UB = bound[1]
+        else:
+            LB = [bound[i][0] for i in range(length_cord)]
+            UB = [bound[i][1] for i in range(length_cord)]
     
         n = len(yl)
         sqrt_n = np.sqrt(n)
@@ -259,37 +265,42 @@ def oneDproj(yl, yu, x, cord = None, data = None, CI = True, H0 = None, options=
         B = options.MC_iterations #number of MC iterations to compute the critical value
         alpha = options.conf_level  #confidence level for the critical value1
 
-        r_H = []
-        r_dH = []
         rng = np.random.Generator(options.rng)
 
         if length_cord>1:
             results =dict()
-            for j in cord:
-                for i in range(B):
-                    indx = rng.integers(low=0, high=n, size=n)
-                    yl_b = yl[indx]
-                    yu_b = yu[indx]
-                    x_b = list(x.iloc[indx,j])
+            r_H = [ [ None for i in range(B) ] for j in range(length_cord) ]
+            r_dH = [ [ None for i in range(B) ] for j in range(length_cord) ]
+            for i in range(B):
+                indx = rng.integers(low=0, high=n, size=n)
+                yl_b = yl[indx]
+                yu_b = yu[indx]
+                x_b = x.iloc[indx,cord]
 
-                    bound_b = oneDproj_single(yl_b,yu_b,x_b)
-                    r_H.append(sqrt_n*HdistInterval(bound_b, bound[j]))
-                    r_dH.append(sqrt_n*dHdistInterval(bound_b, bound[j]))
+                bound_b = oneDproj_multi(yl_b,yu_b,x_b)
+                for j in range(length_cord):
+                    r_H[j][i]=sqrt_n*HdistInterval(bound_b[j], bound[j])
+                    r_dH[j][i]=sqrt_n*dHdistInterval(bound_b[j], bound[j])
 
-                r_H.sort()
-                c_H = r_H[np.floor(alpha*B).astype(int)]
-                CI_H = [LB - c_H/sqrt_n, UB+c_H/sqrt_n]
+            for j in range(length_cord):
+                r_H[j].sort()
+                c_H = r_H[j][np.floor(alpha*B).astype(int)]
+                CI_H = [LB[j] - c_H/sqrt_n, UB[j]+c_H/sqrt_n]
                 Htest = TestResults(testStat_H,c_H,CI_H) 
 
-                r_dH.sort()
-                c_dH = r_dH[np.floor(alpha*B).astype(int)]
-                CI_dH = [LB - c_dH/sqrt_n, UB + c_dH/sqrt_n]
+                r_dH[j].sort()
+                c_dH = r_dH[j][np.floor(alpha*B).astype(int)]
+                CI_dH = [LB[j] - c_dH/sqrt_n, UB[j]+c_dH/sqrt_n]
                 dHtest = TestResults(testStat_dH,c_dH,CI_dH)
 
-                results[j]=Results(bound, Htest, dHtest)                     
+                results[j]=Results(bound[j], Htest, dHtest)                     
         else:
             if length_cord ==1:
                 x = x.iloc[:,cord] 
+
+            r_H = []
+            r_dH = []
+
             for i in range(B):
                 indx = rng.integers(low=0, high=n, size=n)
                 yl_b = yl[indx]
