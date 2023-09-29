@@ -278,6 +278,24 @@ end
 
 ###################### End of projection functions ######################################
 
+function oneDproj(df::DataFrame,
+	yl::Symbol,
+	yu::Symbol,
+	x::Symbol;
+	options::Options=default_options, 
+	CI=true,
+	H0::Union{
+	Vector{<:Real},Nothing}=nothing)
+	# This is the data frame version of oneDproj. Columns are turned into vectors and
+	# the regular version of oneDproj is called.
+
+	y_l = copy(df[!,yl])
+	y_u = copy(df[!,yu])
+	new_x = copy(df[!,x])
+	results = oneDproj(y_l,y_u,new_x;options,CI,H0)
+
+	return results
+end
 
 function oneDproj(yl::Vector{<:Real},
 			  yu::Vector{<:Real},
