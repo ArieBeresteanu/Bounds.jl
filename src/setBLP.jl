@@ -179,7 +179,7 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	sort!(r_dH,dims=1)
 	c_dH = r_dH[floor(Int64,α*B)]
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
-	dHtest = TestResults(testStat_dH,c_dH,CI_dH)
+	dHtest = TestResults(CI_dH,c_dH,testStat_dH)
 
 	results = Results(bound,Htest,dHtest)
 
