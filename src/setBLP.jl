@@ -115,8 +115,8 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	α = options.conf_level  #confidence level for the critical value1
 	distribution = DiscreteUniform(1,n)
 
-	r_H=zeros(n)
-	r_dH = zeros(n)
+	r_H=zeros(B)
+	r_dH = zeros(B)
 
 	for i=1:B
 		indx = rand(options.rng,distribution,n)
