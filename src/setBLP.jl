@@ -172,7 +172,7 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	sort!(r_H,dims=2)
 	c_H = r_H[floor(Int64,α*B)]
 	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
-	Htest = TestResults(cI_H,c_H,testStat_H) 
+	Htest = TestResults(CI_H,c_H,testStat_H) 
 
 	#test based on directed Hausdorff distance:
 	r_dH = maximum([plus.(rr[1,:]) minus.(rr[2,:])],dims=2)
