@@ -143,6 +143,8 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 end
 
 function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
+
+	Random.seed!(options.seed)
 	#This function uses the test based on the asymptotic distributin as developed in BM(2008) pp. 778-779
     LB = mean(yl)
 	UB = mean(yu)
