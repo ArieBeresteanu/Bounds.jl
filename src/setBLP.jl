@@ -134,7 +134,8 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	sort!(r_dH)
 	c_dH = r_dH[floor(Int64,α*B)]
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
-	dHtest = TestResults(testStat_dH,c_dH,CI_dH)
+	dHtest = TestResults(cI_dH,c_dH,testStat_dH)
+	
 
 	results = Results(H0,bound,Htest,dHtest)
 
@@ -171,7 +172,7 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	sort!(r_H,dims=2)
 	c_H = r_H[floor(Int64,α*B)]
 	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
-	Htest = TestResults(testStat_H,c_H,CI_H) 
+	Htest = TestResults(cI_H,c_H,testStat_H) 
 
 	#test based on directed Hausdorff distance:
 	r_dH = maximum([plus.(rr[1,:]) minus.(rr[2,:])],dims=2)
