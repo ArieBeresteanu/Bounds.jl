@@ -134,7 +134,7 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	sort!(r_dH)
 	c_dH = r_dH[floor(Int64,α*B)]
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
-	dHtest = TestResults(cI_dH,c_dH,testStat_dH)
+	dHtest = TestResults(CI_dH,c_dH,testStat_dH)
 	#TestResults(CI_dH,c_dH,testStat_dH)
 
 	results = Results(bound,H0,Htest,dHtest)
