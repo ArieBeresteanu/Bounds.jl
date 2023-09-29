@@ -105,7 +105,7 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	bound = [LB,UB]
 
 	# test Statistic
-	n = length(yl)
+	n = length(yl) 
 	sqrt_n = sqrt(n)
 	bound = vec(bound)
 	testStat_H = sqrt_n*HdistInterval(bound,H0)
@@ -277,7 +277,24 @@ function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord:
 end
 
 ###################### End of projection functions ######################################
+function oneDproj(df::DataFrame,
+	yl::Symbol,
+	yu::Symbol,
+	x::Symbol;
+	options::Options=default_options, 
+	CI=true,
+	H0::Union{Vector{<:Real},Nothing}=nothing)
+	# The dataframe version of oneDproj. Dataframe columns are converted to vectors and the 
+	# regular version of the function is called.
 
+	y_l = copy(df[!,yl])
+	y_u = copy(df[!,yu])
+	new_x = copy(df[!,x])
+
+	results =  oneDproj(y_l,y_u,new_x;options,CI,H0)
+	return results
+
+end
 
 function oneDproj(yl::Vector{<:Real},
 			  yu::Vector{<:Real},
