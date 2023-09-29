@@ -88,7 +88,7 @@ function dHdistInterval(v1::Vector{<:Real},v2::Vector{<:Real})
 end
 
 ## Plan: add DataFrame capabilities
-function EY(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options,method="Asymptotic")
+function EY(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real};options::Options=default_options,method="Asymptotic")
 	#THis is the shell function that calls either the asymtotic distribution version or the bootstrap version of EY
 	if method =="Asymptotic"
 		EYasy(yl,yu,H0,options)
@@ -129,13 +129,13 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	sort!(r_H)
 	c_H = r_H[floor(Int64,α*B)]
 	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
-	Htest = TestResults(testStat_H,c_H,CI_H) 
+	Htest = TestResults(c_H,CI_H,Htest) 
 
 	sort!(r_dH)
 	c_dH = r_dH[floor(Int64,α*B)]
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
 	dHtest = TestResults(cI_dH,c_dH,testStat_dH)
-	
+	#TestResults(CI_dH,c_dH,testStat_dH)
 
 	results = Results(bound,H0,Htest,dHtest)
 
