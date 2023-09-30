@@ -88,7 +88,7 @@ function dHdistInterval(v1::Vector{<:Real},v2::Vector{<:Real})
 end
 
 ## Plan: add DataFrame capabilities
-function EY(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options,method="Asymptotic")
+function EY(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real};options::Options=default_options,method="Asymptotic")
 	#THis is the shell function that calls either the asymtotic distribution version or the bootstrap version of EY
 	if method =="Asymptotic"
 		EYasy(yl,yu,H0,options)
@@ -115,8 +115,8 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	α = options.conf_level  #confidence level for the critical value1
 	distribution = DiscreteUniform(1,n)
 
-	r_H=zeros(n)
-	r_dH = zeros(n)
+	r_H=zeros(B)
+	r_dH = zeros(B)
 
 	for i=1:B
 		indx = rand(options.rng,distribution,n)
@@ -129,19 +129,22 @@ function EYboot(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options
 	sort!(r_H)
 	c_H = r_H[floor(Int64,α*B)]
 	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
-	Htest = TestResults(testStat_H,c_H,CI_H) 
+	Htest = TestResults(CI_H,c_H,testStat_H) 
 
 	sort!(r_dH)
 	c_dH = r_dH[floor(Int64,α*B)]
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
-	dHtest = TestResults(testStat_dH,c_dH,CI_dH)
+	dHtest = TestResults(CI_dH,c_dH,testStat_dH)
+	#TestResults(CI_dH,c_dH,testStat_dH)
 
-	results = Results(H0,bound,Htest,dHtest)
+	results = Results(bound,H0,Htest,dHtest)
 
 	return results
 end
 
 function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options::Options=default_options)
+
+	Random.seed!(options.seed)
 	#This function uses the test based on the asymptotic distributin as developed in BM(2008) pp. 778-779
     LB = mean(yl)
 	UB = mean(yu)
@@ -171,16 +174,16 @@ function EYasy(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real},options:
 	sort!(r_H,dims=2)
 	c_H = r_H[floor(Int64,α*B)]
 	CI_H = [LB-c_H/sqrt_n,UB+c_H/sqrt_n]
-	Htest = TestResults(testStat_H,c_H,CI_H) 
+	Htest = TestResults(CI_H,c_H,testStat_H) 
 
 	#test based on directed Hausdorff distance:
 	r_dH = maximum([plus.(rr[1,:]) minus.(rr[2,:])],dims=2)
 	sort!(r_dH,dims=1)
 	c_dH = r_dH[floor(Int64,α*B)]
 	CI_dH = [LB-c_dH/sqrt_n,UB+c_dH/sqrt_n]
-	dHtest = TestResults(testStat_dH,c_dH,CI_dH)
+	dHtest = TestResults(CI_dH,c_dH,testStat_dH)
 
-	results = Results(bound,Htest,dHtest)
+	results = Results(bound,H0,Htest,dHtest)
 
 	return results
 end
@@ -277,24 +280,7 @@ function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord:
 end
 
 ###################### End of projection functions ######################################
-function oneDproj(df::DataFrame,
-	yl::Symbol,
-	yu::Symbol,
-	x::Symbol;
-	options::Options=default_options, 
-	CI=true,
-	H0::Union{Vector{<:Real},Nothing}=nothing)
-	# The dataframe version of oneDproj. Dataframe columns are converted to vectors and the 
-	# regular version of the function is called.
 
-	y_l = copy(df[!,yl])
-	y_u = copy(df[!,yu])
-	new_x = copy(df[!,x])
-
-	results =  oneDproj(y_l,y_u,new_x;options,CI,H0)
-	return results
-
-end
 
 function oneDproj(yl::Vector{<:Real},
 			  yu::Vector{<:Real},
