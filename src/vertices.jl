@@ -68,10 +68,10 @@ function xangle(p1::Vertex,p2::Vertex)
     end
     xang =atan(Δ[2],abs(Δ[1]))
     if Δ[1]<0
-        xang = pi-xang
+        xang = π-xang
     end
     if flag
-        xang=2*pi-xang
+        xang=2*π-xang
     end
     return xang
 

@@ -2,7 +2,7 @@ module setBLP
 
 import LinearAlgebra ,Base
 using Statistics, Random, Distributions
-using DataFrames
+using DataFrames,Plots
 
 ####################
 ###   Includes:  ###
@@ -15,7 +15,7 @@ include("segments.jl")
 export Segment, dotDist, xangle
 
 include("polygons.jl")  
-export Polygon, minkowskiSum, lambdaPolygon, dirHausdorff, hausdorff
+export Polygon, minkowskiSum, lambdaPolygon, dirHausdorff, hausdorff, sortPolygon!, angles, scatterPolygon, plotPolygon
 
 ###############################
 ###   Defined Structures:   ###

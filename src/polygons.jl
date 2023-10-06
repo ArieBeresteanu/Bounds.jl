@@ -6,10 +6,10 @@
 mutable struct Polygon
     vertices :: Vector{Vertex}
     isSorted :: Bool 
-    sort :: Function
-    plot :: Function
-    angles :: Function
-    scatter :: Function
+    #sort :: Function
+    #plot :: Function
+    #angles :: Function
+    #scatter :: Function
 
     function Polygon(vertices)
         this = new()
@@ -17,86 +17,190 @@ mutable struct Polygon
         this.vertices=vertices
         this.isSorted = false
         
-        ## Sorting function
-        this.sort = function()
-            n=length(this.vertices)
-            #step 1: find the point with a minimal y coordinate and put it first.
-            # comment: sorting is complexity nlog(n) but the following is just n
-            #using sorting:
-            #I = sortperm(fetchY.(this.vertices))
-            #this.vertices = this.vertices[I]
-            #going over the list
-            m=fetchY(this.vertices[1])
-            for i=2:n
-                l=fetchY(this.vertices[i])
-                if l<m #then swap
-                    m=l
-                    temp=this.vertices[i]
-                    this.vertices[i]=this.vertices[1]
-                    this.vertices[1]=temp
-                end
-            end
-            #step 2: compute angles between the minimal vertex and all other vertices
-            angs =zeros(n) #first column for angles and second column for the x coordinate
-            angs[1]=-1
-            v1 =this.vertices[1]
-            for i=2:n
-                angs[i] = xangle(v1,this.vertices[i])
-            end
-            #step 3: sort by angle
-            I=sortperm(angs)
-            this.vertices=this.vertices[I] 
-            this.isSorted = true
-        end
+        # ## Sorting function
+        # this.sort = function()
+        #     n=length(this.vertices)
+        #     #step 1: find the point with a minimal y coordinate and put it first.
+        #     # comment: sorting is complexity nlog(n) but the following is just n
+        #     #using sorting:
+        #     #I = sortperm(fetchY.(this.vertices))
+        #     #this.vertices = this.vertices[I]
+        #     #going over the list
+        #     m=fetchY(this.vertices[1])
+        #     for i=2:n
+        #         l=fetchY(this.vertices[i])
+        #         if l<m #then swap
+        #             m=l
+        #             temp=this.vertices[i]
+        #             this.vertices[i]=this.vertices[1]
+        #             this.vertices[1]=temp
+        #         end
+        #     end
+        #     #step 2: compute angles between the minimal vertex and all other vertices
+        #     angs =zeros(n) #first column for angles and second column for the x coordinate
+        #     angs[1]=-1
+        #     v1 =this.vertices[1]
+        #     for i=2:n
+        #         angs[i] = xangle(v1,this.vertices[i])
+        #     end
+        #     #step 3: sort by angle
+        #     I=sortperm(angs)
+        #     this.vertices=this.vertices[I] 
+        #     this.isSorted = true
+        # end
         
-        ## polygon angles function
-        this.angles = function()
-            if this.isSorted == false
-                this.sort()
-            end
-            #this function
-            n=length(this.vertices)
-            ang=zeros(n)
-            for i=1:n
-                i==n ? j=1 : j=i+1
-                ang[i] =xangle(this.vertices[i],this.vertices[j])                
-            end
-            return ang
-        end
+        # ## polygon angles function
+        # this.angles = function()
+        #     if this.isSorted == false
+        #         this.sort()
+        #     end
+        #     #this function
+        #     n=length(this.vertices)
+        #     ang=zeros(n)
+        #     for i=1:n
+        #         i==n ? j=1 : j=i+1
+        #         ang[i] =xangle(this.vertices[i],this.vertices[j])                
+        #     end
+        #     return ang
+        # end
         
-        ## Line plot function
-        this.plot = function()
-            if this.isSorted == false
-                this.sort()
-            end
-            n=length(this.vertices)
-            x=zeros(n+1); y=zeros(n+1);
-            for i=1:n
-                x[i]=this.vertices[i].v[1]
-                y[i]=this.vertices[i].v[2]
-            end
-            x[n+1]=this.vertices[1].v[1]
-            y[n+1]=this.vertices[1].v[2]
-            plot(x,y,label="",fill=true)
-        end
         
-        ## Scatter plot function
-        this.scatter = function()
-            if this.isSorted == false
-                this.sort()
-            end
-            n=length(this.vertices)
-            x=zeros(n); y=zeros(n);
-            for i=1:n
-                x[i]=this.vertices[i].v[1]
-                y[i]=this.vertices[i].v[2]
-            end
-            scatter(x,y,label="")
-        end
-            
+    #     ## Scatter plot function
+    #     this.scatter = function()
+    #         if this.isSorted == false
+    #             this.sort()
+    #         end
+    #         n=length(this.vertices)
+    #         x=zeros(n); y=zeros(n);
+    #         for i=1:n
+    #             x[i]=this.vertices[i].v[1]
+    #             y[i]=this.vertices[i].v[2]
+    #         end
+    #         scatter(x,y,label="")
+    #     end       
         return this
     end
 end
+
+## Scatter plot function
+function scatterPolygon(p::Polygon)
+    if p.isSorted == false
+        p.sort()
+    end
+    n=length(p.vertices)
+    x=zeros(n); y=zeros(n);
+    for i=1:n
+        x[i]=p.vertices[i].v[1]
+        y[i]=p.vertices[i].v[2]
+    end
+    scatter(x,y,label="")
+end
+
+## Line plot function
+function plotPolygon(p::Polygon)
+    if p.isSorted == false
+        sortPolygon!(p)
+    end
+    n=length(p.vertices)
+    x=zeros(n+1); y=zeros(n+1);
+    for i=1:n
+        x[i]=p.vertices[i].v[1]
+        y[i]=p.vertices[i].v[2]
+    end
+    x[n+1]=p.vertices[1].v[1]
+    y[n+1]=p.vertices[1].v[2]
+    plot(x,y,label="",fill=true)
+end
+
+## polygon angles function
+function angles(p::Polygon)
+    if p.isSorted == false
+        sortPolygon!(p)
+    end
+    #this function
+    n=length(p.vertices)
+    ang=zeros(n)
+    for i=1:n
+        i==n ? j=1 : j=i+1
+        ang[i] =xangle(p.vertices[i],p.vertices[j])                
+    end
+    return ang
+end
+
+# the y coordinate of a vertex
+function fetchY(ver::Vertex)
+    # taking the y-coordinate out of the vertex
+    return ver.v[2]
+end
+
+function xangle(p1::Vertex,p2::Vertex)
+    #computes the angle that the vector starting from vertex p1 and ending at vertex p2 makes with the x-axis
+    Δ = (p2-p1).v
+    flag=false
+    if Δ[2] < 0
+        Δ[2] = -Δ[2]
+        flag = true
+    end
+    xang =atan(Δ[2],abs(Δ[1]))
+    if Δ[1]<0
+        xang = π-xang
+    end
+    if flag
+        xang=2*π-xang
+    end
+    return xang
+
+end
+
+## Sorting a Polygon function
+function sortPolygon!(P::Polygon)
+    n=length(P.vertices)
+    #step 1: find the point with a minimal y coordinate and put it first.
+    # comment: sorting is complexity nlog(n) but the following is just n
+    #using sorting:
+    #I = sortperm(fetchY.(P.vertices))
+    #P.vertices = P.vertices[I]
+    #going over the list
+    m=fetchY(P.vertices[1])
+    for i=2:n
+        l=fetchY(P.vertices[i])
+        if l<m #then swap
+            m=l
+            temp=P.vertices[i]
+            P.vertices[i]=P.vertices[1]
+            P.vertices[1]=temp
+        end
+    end
+    #step 2: compute angles between the minimal vertex and all other vertices
+    angs =zeros(n) #first column for angles and second column for the x coordinate
+    angs[1]=-1
+    v1 =P.vertices[1]
+    for i=2:n
+        angs[i] = xangle(v1,P.vertices[i])
+    end
+    #step 3: sort by angle
+    I=sortperm(angs)
+    P.vertices=P.vertices[I] 
+    P.isSorted = true
+    return P
+end
+
+###################################################
+############# Summation functions: ################
+###################################################
+
+function sumTwoSegments(s1::Segment,s2::Segment)
+    vers = [s1.p1+s2.p1,
+        s1.p1+s2.p2,
+        s1.p2+s2.p1,
+        s1.p2+s2.p2        
+    ]
+    poly = Polygon(vers)
+    sortPolygon!(poly)
+    return poly
+end    
+
+Base.:+(s1::Segment,s2::Segment) = sumTwoSegments(s1,s2)
 
 function minkowskiSum(v::Vertex,P::Polygon)
     # this function adds v to every vertex of P
@@ -145,8 +249,8 @@ function minkowskiSum(P::Polygon,Q::Polygon)
     
 # case 4: both Q and P have more than 1 vertex
     else
-        angP=[P.angles(); 100]
-        angQ=[Q.angles(); 100]
+        angP=[angles(P); 100] # 100 is just a big number that we know is larger
+        angQ=[angles(Q); 100] # than all the angles which are between 0 and 2π
     
     #m = length(angP)
     #n = length(angQ)
@@ -185,12 +289,13 @@ end
 
 Base.:(+)(P::Polygon,Q::Polygon) = minkowskiSum(P,Q)
 
-function lambdaPolygon(λ::Real,P::Polygon)
+function lambdaPolygon(P::Polygon,λ::Real)
     n = length(P.vertices)
     R=P
     for i=1:n
        R.vertices[i]=λ*P.vertices[i] 
     end
+    return R
 end
 
 #question: can this function be written using a map() function?
