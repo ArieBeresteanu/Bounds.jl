@@ -93,6 +93,16 @@ function scatterPolygon(p::Polygon)
         x[i]=p.vertices[i].v[1]
         y[i]=p.vertices[i].v[2]
     end
+
+    mx, Mx = minimum(x), maximum(x)
+    my, My = minimum(y), maximum(y)
+
+    mx -= 0.05*abs(mx)
+    Mx += 0.05*abs(Mx)
+
+    my -= 0.05*abs(my)
+    My += 0.05*abs(My)
+
     scatter(x,y,label="")
 end
 
@@ -109,7 +119,17 @@ function plotPolygon(p::Polygon)
     end
     x[n+1]=p.vertices[1].v[1]
     y[n+1]=p.vertices[1].v[2]
-    plot(x,y,label="",fill=true)
+
+    mx, Mx = minimum(x), maximum(x)
+    my, My = minimum(y), maximum(y)
+
+    mx -= 0.05*abs(mx)
+    Mx += 0.05*abs(Mx)
+
+    my -= 0.05*abs(my)
+    My += 0.05*abs(My)
+
+    plot(x,y,label="",fill=true,xlims = (mx,Mx), ylims=(my,My) )
 end
 
 ## polygon angles function
@@ -258,16 +278,16 @@ function minkowskiSum(P::Polygon,Q::Polygon)
         PP = [P.vertices; P.vertices[1]]
         QQ = [Q.vertices; Q.vertices[1]]
     
-        println("m=",m," n=",n)
+        #println("m=",m," n=",n)
     
-        println("angP= ", angP)
-        println("angQ= ", angQ)
+        #println("angP= ", angP)
+        #println("angQ= ", angQ)
     
         i=1; j=1;
-        println("----- begin ----------")
+        #println("----- begin ----------")
     
         R =Polygon([PP[1]+QQ[1]]) # a polygon with the sum of the two lower points as the first vertex.
-        println("R vertices: ",R.vertices)
+        #println("R vertices: ",R.vertices)
         while (i<m+1 || j<n+1)
             if angP[i]<angQ[j] 
                 println("angP[i] is minimal")
@@ -280,14 +300,26 @@ function minkowskiSum(P::Polygon,Q::Polygon)
                 j +=1
             end
             R.vertices = [ R.vertices; PP[i]+QQ[j]]
-            println(i,j)
-            println("R vertices: ",R.vertices)
+            #println(i,j)
+            #println("R vertices: ",R.vertices)
         end
     end
     return R
 end
 
 Base.:(+)(P::Polygon,Q::Polygon) = minkowskiSum(P,Q)
+
+function minkowskiSum(P::Polygon,s::Segment)
+    # first, convert the segment to a sorted polygon with two vertices
+    Q = Polygon([s.p1, s.p2])
+    sortPolygon!(Q)
+    
+    # second, sum the two polygons
+    return P+Q
+end
+
+Base.:(+)(P::Polygon,s::Segment) = minkowskiSum(P,s)
+
 
 function lambdaPolygon(P::Polygon,λ::Real)
     n = length(P.vertices)
