@@ -225,21 +225,23 @@ Base.:+(s1::Segment,s2::Segment) = sumTwoSegments(s1,s2)
 function minkowskiSum(v::Vertex,P::Polygon)
     # this function adds v to every vertex of P
     n=length(P.vertices)
-    R=P #initial value
+    poly=P #initial value
     for i=1:n
-        R.vertices[i] +=v
+        poly.vertices[i] +=v
     end
-    return R
+    sortPolygon!(poly)
+    return poly
 end
 
 function minkowskiSum(P::Polygon,v::Vertex)
     # this function adds v to every vertex of P
     n=length(P.vertices)
-    R=P #initial value
+    poly=P #initial value
     for i=1:n
-        R.vertices[i] +=v
+        poly.vertices[i] +=v
     end
-    return R
+    sortPolygon!(poly)
+    return poly
 end
     
 Base.:(+)(v::Vertex,P::Polygon) = minkowskiSum(v,P)
@@ -304,6 +306,7 @@ function minkowskiSum(P::Polygon,Q::Polygon)
             #println("R vertices: ",R.vertices)
         end
     end
+    sortPolygon!(R)
     return R
 end
 
