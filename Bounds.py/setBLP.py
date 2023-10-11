@@ -46,7 +46,7 @@ class Results:
 ###   Constants   ###
 #####################
 
-default_options = Options(2000, 15217, np.random.MT19937(15217), 0.95)
+default_options = Options(2000, 15217, np.random.MT19937, 0.95)
 
 #####################
 ###  Functions:   ###
@@ -91,7 +91,7 @@ def EYboot(yl:list, yu:list, H0:list, options:Options=default_options):
     
     r_H = []
     r_dH = []
-    rng = np.random.Generator(options.rng)
+    rng = np.random.Generator(options.rng(options.seed))
 
     for i in range(B):
         indx = rng.integers(low=0, high=n, size=n)
@@ -132,10 +132,11 @@ def EYasy(yl:list, yu:list, H0:list, options:Options=default_options):
     Pi = np.cov(yl, yu) #covariance matrix for yl yu
     
     B = options.MC_iterations #number of MC iterations to compute the critical value
-    alpha = options.conf_level #confidence level for the critical value1
+    alpha = options.conf_level #confidence level for the critical value
     
     ## Following Algorithm on page 780 in BM2008:
-    rr = np.random.multivariate_normal([0,0], Pi, B) #drawing B pairs from a bivariate-normal distribution.
+    rng = np.random.Generator(default_options.rng(default_options.seed))
+    rr = rng.multivariate_normal([0,0], Pi, B) #drawing B pairs from a bivariate-normal distribution.
     
     ## test based on Hausdorff distance:
     r_H = np.amax(abs(rr),axis=1) #row max
@@ -265,7 +266,7 @@ def oneDproj(yl, yu, x, cord = None, data = None, CI = True, H0 = None, options=
         B = options.MC_iterations #number of MC iterations to compute the critical value
         alpha = options.conf_level  #confidence level for the critical value1
 
-        rng = np.random.Generator(options.rng)
+        rng = np.random.Generator(options.rng(options.seed))
 
         if length_cord>1:
             results =dict()
@@ -345,7 +346,7 @@ def CI1d(yl:list, yu:list, x:list, H0:list, options:Options=default_options):
 
     r_H = []
     r_dH = []
-    rng = np.random.Generator(options.rng)
+    rng = np.random.Generator(options.rng(options.seed))
     
     for i in range(B):
         indx = rng.integers(low=0, high=n, size=n)
