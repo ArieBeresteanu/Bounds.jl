@@ -292,10 +292,10 @@ function minkowskiSum(P::Polygon,Q::Polygon)
         #println("R vertices: ",R.vertices)
         while (i<m+1 || j<n+1)
             if angP[i]<angQ[j] 
-                println("angP[i] is minimal")
+                #println("angP[i] is minimal")
                 i +=1
             elseif angQ[j]<angP[i]
-                println("angQ[j] is minimal")
+                #println("angQ[j] is minimal")
                 j +=1
             else
                 i +=1
