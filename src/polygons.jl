@@ -276,8 +276,8 @@ function minkowskiSum(P::Polygon,Q::Polygon)
         angP=[angles(P); angles(P)[1]] # 100 is just a big number that we know is larger
         angQ=[angles(Q); angles(Q)[1]] # than all the angles which are between 0 and 2π
     
-        m = length(P.vertices)
-        n = length(Q.vertices)
+        #m = length(P.vertices)
+        #n = length(Q.vertices)
     
         PP = [P.vertices; P.vertices[1]]
         QQ = [Q.vertices; Q.vertices[1]]
