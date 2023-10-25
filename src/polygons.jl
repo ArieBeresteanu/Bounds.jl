@@ -271,6 +271,8 @@ function minkowskiSum(P::Polygon,Q::Polygon)
     
 # case 4: both Q and P have more than 1 vertex
     else
+        sortPolygon!(P)
+        sortPolygon!(Q)
         angP=[angles(P); angles(P)[1]] # 100 is just a big number that we know is larger
         angQ=[angles(Q); angles(Q)[1]] # than all the angles which are between 0 and 2π
     
