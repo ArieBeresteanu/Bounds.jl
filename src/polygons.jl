@@ -274,8 +274,8 @@ function minkowskiSum(P::Polygon,Q::Polygon)
         angP=[angles(P); 100] # 100 is just a big number that we know is larger
         angQ=[angles(Q); 100] # than all the angles which are between 0 and 2π
     
-    #m = length(angP)
-    #n = length(angQ)
+        m = length(P.vertices)
+        n = length(Q.vertices)
     
         PP = [P.vertices; P.vertices[1]]
         QQ = [Q.vertices; Q.vertices[1]]
@@ -291,10 +291,10 @@ function minkowskiSum(P::Polygon,Q::Polygon)
         R =Polygon([PP[1]+QQ[1]]) # a polygon with the sum of the two lower points as the first vertex.
         #println("R vertices: ",R.vertices)
         while (i<m+1 || j<n+1)
-            if angP[i]<angQ[j] 
+            if j == n+1 #angP[i]<angQ[j] 
                 #println("angP[i] is minimal")
                 i +=1
-            elseif angQ[j]<angP[i]
+            elseif i == m+1 #angQ[j]<angP[i]
                 #println("angQ[j] is minimal")
                 j +=1
             else
