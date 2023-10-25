@@ -298,8 +298,13 @@ function minkowskiSum(P::Polygon,Q::Polygon)
                 #println("angQ[j] is minimal")
                 j +=1
             else
-                i +=1
-                j +=1
+                dif = angP[i]-angQ[j]
+                if dif ≤ 0
+                    i +=1
+                end
+                if dif ≥ 0
+                    j +=1
+                end
             end
             R.vertices = [ R.vertices; PP[i]+QQ[j]]
             #println(i,j)
