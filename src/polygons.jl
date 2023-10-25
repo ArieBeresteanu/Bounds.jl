@@ -288,7 +288,8 @@ function minkowskiSum(P::Polygon,Q::Polygon)
         i=1; j=1;
         #println("----- begin ----------")
     
-        R =Polygon([PP[1]+QQ[1]]) # a polygon with the sum of the two lower points as the first vertex.
+        R =Polygon([])
+        #R =Polygon([PP[1]+QQ[1]]) # a polygon with the sum of the two lower points as the first vertex.
         #println("R vertices: ",R.vertices)
         while (i<m+1 || j<n+1)
             if j == n+1 #angP[i]<angQ[j] 
