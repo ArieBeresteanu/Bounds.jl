@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt 
 import numpy as np
+from vertex import *
 
 class Polygon:
 	def __init__(self, *vertices):
@@ -41,7 +42,7 @@ class Polygon:
 		return ang
 
 	## line plot
-	def plot(self):
+	def plotPolygon(self):
 		if not self.isSorted:
 			self.sort()
 		x = [ver.v[0] for ver in self.vertices]
@@ -49,21 +50,30 @@ class Polygon:
 		plt.fill(x,y)
 
 	## scatter plot
-	def scatter(self):
+	def scatterPolygon(self):
 		if not self.isSorted:
 			self.sort()
 		x = [ver.v[0] for ver in self.vertices]
 		y = [ver.v[1] for ver in self.vertices]
 		plt.scatter(x,y)
-
+                                                                                                      
 def minkowskiSum(P:Polygon, Q:Polygon):
     # Computes the minkowski sum of two convex polygons: P and Q. The polygons
     # are represented by their vertices and are ordered counter clockwise such
     #* that the first vertex will be the one who has the smallest Y coordinate
     # (and smallest X coordinate in case of a tie).  This assumption is maintained
     # in twoDproj by conditions in BLPcalculator.
+
+    if not P.isSorted:
+    	P.sort()
+    if not Q.isSorted:
+     	Q.sort()
+
     m = len(P.vertices)
     n = len(Q.vertices)
+
+    tol = 1e-10
+    
     R = []
     if m ==1 or n == 1:
         for p in P.vertices:
@@ -84,9 +94,9 @@ def minkowskiSum(P:Polygon, Q:Polygon):
                 i+=1
             else:        
                 dif = angP[i]-angQ[j]
-                if dif>=0:
+                if dif>=-tol:
                     j+=1
-                if dif<=0:
+                if dif<=tol:
                     i+=1
     return Polygon(*tuple(R))
 
