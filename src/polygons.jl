@@ -289,7 +289,9 @@ function minkowskiSum(P::Polygon,Q::Polygon)
     
         i=1; j=1;
         #println("----- begin ----------")
-    
+        
+        tol = 10^-6
+
         R =Polygon([])
         #R =Polygon([PP[1]+QQ[1]]) # a polygon with the sum of the two lower points as the first vertex.
         #println("R vertices: ",R.vertices)
@@ -303,10 +305,10 @@ function minkowskiSum(P::Polygon,Q::Polygon)
                 j +=1
             else
                 dif = angP[i]-angQ[j]
-                if dif ≤ 0
+                if dif ≤ tol
                     i +=1
                 end
-                if dif ≥ 0
+                if dif ≥ -tol
                     j +=1
                 end
             end
