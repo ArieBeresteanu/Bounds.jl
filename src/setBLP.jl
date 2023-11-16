@@ -68,6 +68,11 @@ Represents the results of a statistical test, including confidence intervals, cr
 ```julia
 results = TestResults([2.5, 3.5], 1.96, 2.3)
 """
+mutable struct TestResults
+	ConfidenceInterval :: Union{Vector{<:Real},Nothing} #value is necessary
+	criticalVal :: Union{<:Real,Nothing} #value is optional
+	testStat :: Union{<:Real,Nothing} #value is optional
+end
 
 """
     Results
@@ -87,12 +92,6 @@ null_vals = [0.0, 0.1]
 htest = TestResults([2.5, 3.5], 1.96, 2.3)
 results = Results(bounds, null_vals, htest, nothing)
 """
-mutable struct TestResults
-	ConfidenceInterval :: Union{Vector{<:Real},Nothing} #value is necessary
-	criticalVal :: Union{<:Real,Nothing} #value is optional
-	testStat :: Union{<:Real,Nothing} #value is optional
-end
-
 mutable struct Results
 	bound :: Vector{<:Real} 			   # This field must have a value
 	null  :: Union{Vector{<:Real},Nothing} # Value is optional
@@ -118,7 +117,7 @@ end
 ###   Constants   ###
 #####################
 
-const default_options = Options(2000,15217,MersenneTwister(),0.95)
+const default_options = Options(2000,15217,MersenneTwister(),0.95,10^-6)
 
 
 #####################
