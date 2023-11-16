@@ -21,11 +21,28 @@ export Polygon, minkowskiSum, lambdaPolygon, dirHausdorff, hausdorff, sortPolygo
 ###   Defined Structures:   ###
 ###############################  
 
+"""
+    Options
+
+Represents configuration options for a Monte Carlo simulation or a similar computational process.
+
+# Fields
+- `MC_iterations::Int64`: The number of iterations to be performed in the Monte Carlo simulation.
+- `seed::Int64`: The seed value for random number generation, ensuring reproducibility.
+- `rng::AbstractRNG`: The random number generator to be used. It should be a subtype of `AbstractRNG`.
+- `conf_level::Float64`: The confidence level for statistical calculations, typically between 0 and 1.
+- `tol::Float64`: The tolerance level for convergence or accuracy in computations.
+
+# Example
+```julia
+options = Options(10000, 1234, MersenneTwister(), 0.95, 0.01)
+"""
 mutable struct Options
 	MC_iterations::Int64
 	seed::Int64
 	rng::AbstractRNG
 	conf_level::Float64
+	tol::Float64
 end
 
 function Base.show(o::Options; io::IO=stdout)
@@ -34,6 +51,7 @@ function Base.show(o::Options; io::IO=stdout)
 	println(io, "  Seed: ", o.seed)
 	println(io, "  Random Number Generator: ", o.rng)
 	println(io, "  Confidence level: ", o.conf_level)
+	println(io, "  Tolerance level: ",o.tol)
   end
 
 """
