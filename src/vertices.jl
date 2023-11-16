@@ -2,10 +2,21 @@
 #module vertices
 
 import LinearAlgebra ,Base, Statistics
-
-
 #export Vertex, subVertex, addVertex, lambdaVertex, negVertex, xangle, fetchX, fetchY, distVertex
 
+
+"""
+    Vertex
+
+Represents a vertex in a geometric context, characterized by its coordinates.
+
+# Fields
+- `v::Vector{Real}`: A vector of real numbers representing the coordinates of the vertex.
+
+# Example
+```julia
+vertex = Vertex([1.0, 2.0, 3.0])  # A vertex in 3-dimensional space
+"""
 mutable struct Vertex
     v::Vector{Real}
 end

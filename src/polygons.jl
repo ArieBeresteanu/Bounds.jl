@@ -3,20 +3,36 @@
 
 #export Polygon, minkowskiSum, lambdaPolygon, dirHausdorff, hausdorff
 
+
+"""
+    Polygon
+
+Represents a geometric polygon defined by its vertices.
+
+# Fields
+- `vertices::Vector{Vertex}`: An array of `Vertex` objects defining the corners of the polygon.
+- `isSorted::Bool`: Indicates whether the vertices of the polygon are sorted. It is `false` upon initialization.
+
+# Constructor
+`Polygon(vertices)` creates a new `Polygon` object with the given vertices and sets `isSorted` to `false`.
+
+# Example
+```julia
+verts = [Vertex([0,0]), Vertex([1,0]), Vertex([0,1])]
+poly = Polygon(verts)
+"""
 mutable struct Polygon
     vertices :: Vector{Vertex}
-    isSorted :: Bool 
-    #sort :: Function
-    #plot :: Function
-    #angles :: Function
-    #scatter :: Function
+    isSorted :: Bool  #indicates whether the polygon was sorted. isSorted = false on initiation
 
     function Polygon(vertices)
         this = new()
-
         this.vertices=vertices
-        this.isSorted = false
-        
+        this.isSorted = false     
+        return this
+    end
+end
+
         # ## Sorting function
         # this.sort = function()
         #     n=length(this.vertices)
@@ -64,24 +80,6 @@ mutable struct Polygon
         #     return ang
         # end
         
-        
-    #     ## Scatter plot function
-    #     this.scatter = function()
-    #         if this.isSorted == false
-    #             this.sort()
-    #         end
-    #         n=length(this.vertices)
-    #         x=zeros(n); y=zeros(n);
-    #         for i=1:n
-    #             x[i]=this.vertices[i].v[1]
-    #             y[i]=this.vertices[i].v[2]
-    #         end
-    #         scatter(x,y,label="")
-    #     end       
-        return this
-    end
-end
-
 ## Scatter plot function
 function scatterPolygon(p::Polygon)
     if p.isSorted == false

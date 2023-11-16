@@ -35,7 +35,40 @@ function Base.show(o::Options; io::IO=stdout)
 	println(io, "  Random Number Generator: ", o.rng)
 	println(io, "  Confidence level: ", o.conf_level)
   end
-  
+
+"""
+  TestResults
+
+Represents the results of a statistical test, including confidence intervals, critical values, and test statistics.
+
+# Fields
+- `ConfidenceInterval::Union{Vector{<:Real}, Nothing}`: A vector of real numbers representing the confidence interval of the test. This field is necessary.
+- `criticalVal::Union{<:Real, Nothing}`: A real number representing the critical value of the test. This field is optional.
+- `testStat::Union{<:Real, Nothing}`: A real number representing the test statistic. This field is optional.
+
+# Example
+```julia
+results = TestResults([2.5, 3.5], 1.96, 2.3)
+"""
+
+"""
+    Results
+
+Represents the results of a statistical analysis, including bounds, null values, hypothesis test results, and derivative hypothesis test results.
+
+# Fields
+- `bound::Vector{<:Real}`: A vector of real numbers representing the bounds. This field must have a value.
+- `null::Union{Vector{<:Real}, Nothing}`: A vector of real numbers representing null values. This field is optional.
+- `Htest::Union{TestResults, Nothing}`: An instance of `TestResults` representing the results of a hypothesis test. This field is optional.
+- `dHtest::Union{TestResults, Nothing}`: An instance of `TestResults` representing the results of a derivative hypothesis test. This field is optional.
+
+# Example
+```julia
+bounds = [1.0, 2.0]
+null_vals = [0.0, 0.1]
+htest = TestResults([2.5, 3.5], 1.96, 2.3)
+results = Results(bounds, null_vals, htest, nothing)
+"""
 mutable struct TestResults
 	ConfidenceInterval :: Union{Vector{<:Real},Nothing} #value is necessary
 	criticalVal :: Union{<:Real,Nothing} #value is optional
