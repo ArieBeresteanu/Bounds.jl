@@ -138,6 +138,34 @@ function dHdistInterval(v1::Vector{<:Real},v2::Vector{<:Real})
 end
 
 ## Plan: add DataFrame capabilities
+
+"""
+    EY(yl::Vector{<:Real}, yu::Vector{<:Real}, H0::Vector{<:Real}; options::Options = default_options, method::String = "Asymptotic")
+
+Calculate the expected value `EY` based on lower and upper bounds `yl` and `yu`, and a hypothesis vector `H0`. 
+
+The function allows for different methods of computation, specifically 'Asymptotic' and 'Bootstrap' methods.
+
+# Arguments
+- `yl::Vector{<:Real}`: Vector of lower bounds.
+- `yu::Vector{<:Real}`: Vector of upper bounds.
+- `H0::Vector{<:Real}`: Hypothesis vector.
+- `options::Options`: Configuration options for the calculation, defaults to `default_options`.
+- `method::String`: Method of computation, either "Asymptotic" or "Bootstrap", defaults to "Asymptotic".
+
+# Returns
+Depends on the method chosen:
+- If `method` is "Asymptotic", calls `EYasy`.
+- If `method` is "Bootstrap", calls `EYboot`.
+
+# Examples
+```julia
+# Example using the Asymptotic method
+result = EY([1.0, 2.0], [3.0, 4.0], [0.5, 0.5])
+
+# Example using the Bootstrap method
+result = EY([1.0, 2.0], [3.0, 4.0], [0.5, 0.5], method="Bootstrap")
+"""
 function EY(yl::Vector{<:Real},yu::Vector{<:Real},H0::Vector{<:Real};options::Options=default_options,method="Asymptotic")
 	#THis is the shell function that calls either the asymtotic distribution version or the bootstrap version of EY
 	if method =="Asymptotic"
