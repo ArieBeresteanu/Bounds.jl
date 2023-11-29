@@ -274,6 +274,21 @@ end
 
 # 1. x is assumed to be one dimensional
 
+"""
+    projection(yl::Vector{<:Real}, yu::Vector{<:Real}, x::Vector{<:Real})
+
+Compute the projection bounds for a given vector `x` within the lower and upper bounds specified by `yl` and `yu`.
+
+This function demeans `x`, computes element-wise products of `x` with `yl` and `yu`, and then calculates the sum of the minimum and maximum of these products normalized by the sum of squares of `x`.
+
+# Arguments
+- `yl::Vector{<:Real}`: A vector of lower bounds.
+- `yu::Vector{<:Real}`: A vector of upper bounds.
+- `x::Vector{<:Real}`: The vector for which projection bounds are to be calculated.
+
+# Returns
+- `Vector{Real}`: A 2-element vector containing the lower and upper projection bounds `[lb, ub]`.
+"""
 function projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Vector{<:Real})
 	x = x.-mean(x) #demean x
 	M = [x.*yl x.*yu]
@@ -315,6 +330,23 @@ end
 
 # 4. X is assumed to be a matrix of covariates and a coordinate is NOT specified
 
+
+"""
+    projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
+
+
+    projection(yl::Vector{<:Real}, yu::Vector{<:Real}, x::Matrix{<:Real})
+
+Calculate the projection bounds for each column of `x`, using lower and upper bounds `yl` and `yu`.
+
+# Arguments
+- `yl::Vector{<:Real}`: Lower bounds for the projection.
+- `yu::Vector{<:Real}`: Upper bounds for the projection.
+- `x::Matrix{<:Real}`: Matrix for which projections are calculated.
+
+# Returns
+- `Vector`: A vector containing the projection bounds for each column in `x`.
+"""
 function projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
     # The function assumes that the matrix x does not contain a 1 Vector
 	ncols = size(x,2)
@@ -333,6 +365,20 @@ end
 
 ## Data frame versions ##
 
+"""
+    projection(df::DataFrame, yl::Symbol, yu::Symbol, x::Symbol)
+
+Calculate the projection bound for the column `x` of DataFrame `df`, using the columns `yl` and `yu` as bounds.
+
+# Arguments
+- `df::DataFrame`: DataFrame containing the data.
+- `yl::Symbol`: Symbol representing the column name for lower bounds.
+- `yu::Symbol`: Symbol representing the column name for upper bounds.
+- `x::Symbol`: Symbol representing the column name for which projection is calculated.
+
+# Returns
+- Projection bound for the specified column.
+"""
 function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol)
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
