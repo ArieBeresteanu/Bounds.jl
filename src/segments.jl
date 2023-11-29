@@ -3,6 +3,26 @@
 
 #export Segment, dotDist, xangle 
 
+"""
+    mutable struct Segment
+
+Represents a segment in space defined by two end vertices (`p1` and `p2`). This structure also includes functions to check the validity of the input, compute the segment's length, and determine its dimensionality.
+
+# Fields
+- `p1::Vertex`: The first vertex (endpoint) of the segment.
+- `p2::Vertex`: The second vertex (endpoint) of the segment.
+- `checkInput::Function`: A function to check if `p1` and `p2` have the same dimensionality.
+- `length::Function`: A function to compute the length of the segment.
+- `dim::Function`: A function to return the dimensionality of the segment if `p1` and `p2` have the same dimensionality; otherwise, it returns `false`.
+
+# Constructor
+- `Segment(p1, p2)`: Creates a new `Segment` object given two vertices `p1` and `p2`.
+
+# Details
+- The `checkInput` function ensures that both vertices are in the same dimensional space.
+- The `length` function calculates the Euclidean distance (norm) between `p1` and `p2`.
+- The `dim` function returns the dimensionality of the vertices if they are consistent, otherwise returns `false`.
+"""
 mutable struct Segment
     p1::Vertex
     p2::Vertex
