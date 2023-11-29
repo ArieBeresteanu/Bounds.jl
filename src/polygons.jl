@@ -32,55 +32,26 @@ mutable struct Polygon
         return this
     end
 end
-
-        # ## Sorting function
-        # this.sort = function()
-        #     n=length(this.vertices)
-        #     #step 1: find the point with a minimal y coordinate and put it first.
-        #     # comment: sorting is complexity nlog(n) but the following is just n
-        #     #using sorting:
-        #     #I = sortperm(fetchY.(this.vertices))
-        #     #this.vertices = this.vertices[I]
-        #     #going over the list
-        #     m=fetchY(this.vertices[1])
-        #     for i=2:n
-        #         l=fetchY(this.vertices[i])
-        #         if l<m #then swap
-        #             m=l
-        #             temp=this.vertices[i]
-        #             this.vertices[i]=this.vertices[1]
-        #             this.vertices[1]=temp
-        #         end
-        #     end
-        #     #step 2: compute angles between the minimal vertex and all other vertices
-        #     angs =zeros(n) #first column for angles and second column for the x coordinate
-        #     angs[1]=-1
-        #     v1 =this.vertices[1]
-        #     for i=2:n
-        #         angs[i] = xangle(v1,this.vertices[i])
-        #     end
-        #     #step 3: sort by angle
-        #     I=sortperm(angs)
-        #     this.vertices=this.vertices[I] 
-        #     this.isSorted = true
-        # end
-        
-        # ## polygon angles function
-        # this.angles = function()
-        #     if this.isSorted == false
-        #         this.sort()
-        #     end
-        #     #this function
-        #     n=length(this.vertices)
-        #     ang=zeros(n)
-        #     for i=1:n
-        #         i==n ? j=1 : j=i+1
-        #         ang[i] =xangle(this.vertices[i],this.vertices[j])                
-        #     end
-        #     return ang
-        # end
         
 ## Scatter plot function
+"""
+    scatterPolygon(p::Polygon)
+
+Create a scatter plot of the vertices of a given polygon `p`. 
+
+This function first checks if the vertices of the polygon are sorted. If not, it sorts them. It then extracts the x and y coordinates of each vertex and plots these points in a scatter plot. The plot's x and y axis limits are adjusted slightly outside the range of the polygon's vertices to ensure visibility.
+
+# Arguments
+- `p::Polygon`: A Polygon object whose vertices are to be plotted.
+
+# Returns
+- Generates a scatter plot of the polygon's vertices.
+
+# Details
+- The function assumes that the `Polygon` type has properties `isSorted` and `vertices`, where `vertices` is a list of points, each with `x` and `y` coordinates.
+- If `p.isSorted` is `false`, the polygon's vertices are sorted before plotting.
+- The plot automatically adjusts its axes limits to provide a margin around the plotted points for better visibility.
+"""
 function scatterPolygon(p::Polygon)
     if p.isSorted == false
         p.sort()
@@ -105,6 +76,28 @@ function scatterPolygon(p::Polygon)
 end
 
 ## Line plot function
+
+"""
+    plotPolygon(p::Polygon)
+
+Plot a given polygon `p` by connecting its vertices in order. 
+
+This function first checks if the vertices of the polygon are sorted. If not, it sorts them using `sortPolygon!`. It then extracts the x and y coordinates of each vertex and creates a closed plot by connecting these points in sequence and finally back to the first point.
+
+The plot's x and y axis limits are adjusted slightly outside the range of the polygon's vertices to ensure all points are clearly visible within the plot area.
+
+# Arguments
+- `p::Polygon`: A Polygon object whose vertices are to be plotted.
+
+# Returns
+- Generates a plot of the polygon, with the vertices connected in order.
+
+# Details
+- The function assumes that the `Polygon` type has properties `isSorted` and `vertices`, with each vertex having `x` and `y` coordinates.
+- If `p.isSorted` is `false`, the function sorts the vertices of the polygon before plotting.
+- The polygon is plotted as a closed shape, with the last vertex connected back to the first.
+- Axes limits are automatically adjusted to provide a margin around the polygon for better visibility.
+"""
 function plotPolygon(p::Polygon)
     if p.isSorted == false
         sortPolygon!(p)
@@ -171,6 +164,27 @@ function xangle(p1::Vertex,p2::Vertex)
 end
 
 ## Sorting a Polygon function
+
+"""
+    sortPolygon!(P::Polygon)
+
+Sort the vertices of a polygon `P` in place, arranging them in an angular order starting from the vertex with the minimal y-coordinate. 
+
+The function first identifies the vertex with the lowest y-coordinate and makes it the first vertex of the polygon. Then, it calculates the angles between this vertex and all other vertices. Finally, it sorts the vertices in ascending order of these angles, effectively reordering the vertices around the first vertex.
+
+This sorting method ensures that the vertices of the polygon are ordered in a way that makes them suitable for plotting or other geometric computations.
+
+# Arguments
+- `P::Polygon`: A Polygon object whose vertices are to be sorted.
+
+# Returns
+- `Polygon`: The same Polygon object `P`, with its vertices sorted in place.
+
+# Details
+- The function assumes that the `Polygon` type has a property `vertices`, with each vertex having `x` and `y` coordinates.
+- The sorting is based on angular order relative to the vertex with the lowest y-coordinate, ensuring a consistent traversal order for the vertices.
+- This operation modifies the original `Polygon` object `P`.
+"""
 function sortPolygon!(P::Polygon)
     n=length(P.vertices)
     #step 1: find the point with a minimal y coordinate and put it first.
@@ -245,6 +259,29 @@ end
 Base.:(+)(v::Vertex,P::Polygon) = minkowskiSum(v,P)
 Base.:(+)(P::Polygon,v::Vertex) = minkowskiSum(P,v)
 
+"""
+    minkowskiSum(P::Polygon, Q::Polygon)
+
+Compute the Minkowski sum of two convex polygons `P` and `Q`. 
+
+The Minkowski sum of two sets `A` and `B` in Euclidean space is the set of all points obtained by adding each point in `A` to each point in `B`. This function assumes that both `P` and `Q` are convex polygons represented by their vertices, ordered counter-clockwise starting from the vertex with the smallest y-coordinate (and the smallest x-coordinate in case of a tie).
+
+# Arguments
+- `P::Polygon`: The first convex polygon.
+- `Q::Polygon`: The second convex polygon.
+
+# Returns
+- `Polygon`: A new Polygon representing the Minkowski sum of `P` and `Q`.
+
+# Details
+- The function handles different cases:
+    1. Both `P` and `Q` are single vertices (points).
+    2. `P` is a single vertex and `Q` is not.
+    3. `Q` is a single vertex and `P` is not.
+    4. Both `P` and `Q` have more than one vertex.
+- In the case where both `P` and `Q` have more than one vertex, the function ensures they are sorted correctly before computing the Minkowski sum.
+- The function uses the angles of the vertices in the polygons to compute the sum.
+"""
 function minkowskiSum(P::Polygon,Q::Polygon)
     # Computes the minkowski sum of two convex polygons: P and Q. The polygons
     # are represented by their vertices and are ordered counter clockwise such
@@ -320,6 +357,25 @@ end
 
 Base.:(+)(P::Polygon,Q::Polygon) = minkowskiSum(P,Q)
 
+"""
+    minkowskiSum(P::Polygon, s::Segment)
+
+Compute the Minkowski sum of a convex polygon `P` and a line segment `s`. 
+
+The function first converts the segment `s` into a two-vertex polygon `Q`. It sorts the vertices of `Q` to maintain the counter-clockwise order starting from the vertex with the smallest y-coordinate. Then, it computes the Minkowski sum of the polygon `P` and this two-vertex polygon `Q`.
+
+# Arguments
+- `P::Polygon`: The convex polygon.
+- `s::Segment`: The line segment to be added to the polygon.
+
+# Returns
+- `Polygon`: A new Polygon representing the Minkowski sum of `P` and the polygon version of segment `s`.
+
+# Details
+- The function assumes that `Polygon` and `Segment` are defined types, where `Segment` consists of two endpoints `p1` and `p2`.
+- The segment `s` is first transformed into a polygon `Q` with two vertices, then sorted if necessary.
+- The Minkowski sum `P + Q` is then computed, where `Q` is the polygon representation of the segment `s`.
+"""
 function minkowskiSum(P::Polygon,s::Segment)
     # first, convert the segment to a sorted polygon with two vertices
     Q = Polygon([s.p1, s.p2])
@@ -343,6 +399,25 @@ end
 
 #question: can this function be written using a map() function?
 
+"""
+    dirHausdorff(P::Polygon, Q::Polygon)
+
+Calculate the directed Hausdorff distance from polygon `P` to polygon `Q`.
+
+The directed Hausdorff distance is the maximum distance from any point in `P` to the closest point in `Q`. For each vertex in `P`, the function computes the minimum distance to any edge of `Q`, and then returns the maximum of these minimum distances.
+
+# Arguments
+- `P::Polygon`: The first polygon.
+- `Q::Polygon`: The second polygon.
+
+# Returns
+- `Real`: The directed Hausdorff distance from `P` to `Q`.
+
+# Details
+- The function assumes that `Polygon` is a defined type with a property `vertices`, where each vertex is a point in 2D space.
+- For each vertex in `P`, the function considers all edges of `Q` (formed by consecutive vertices, with the last vertex connected back to the first) and calculates the minimum distance to these edges.
+- The directed Hausdorff distance is the maximum of these minimum distances.
+"""
 function dirHausdorff(P::Polygon,Q::Polygon)
     n = length(P.vertices)
     m = length(Q.vertices)
@@ -358,6 +433,24 @@ function dirHausdorff(P::Polygon,Q::Polygon)
     return dist
 end
 
+"""
+    hausdorff(P::Polygon, Q::Polygon)
+
+Calculate the Hausdorff distance between two polygons `P` and `Q`.
+
+The Hausdorff distance is a measure of the discrepancy between two sets. It is defined as the maximum of two directed Hausdorff distances: one from `P` to `Q` and the other from `Q` to `P`. This distance reflects the greatest of all distances from a point in one set to the closest point in the other set.
+
+# Arguments
+- `P::Polygon`: The first polygon.
+- `Q::Polygon`: The second polygon.
+
+# Returns
+- `Real`: The Hausdorff distance between `P` and `Q`.
+
+# Details
+- The function computes the directed Hausdorff distance from `P` to `Q` and from `Q` to `P`, then returns the larger of these two values.
+- This measure is symmetrical and captures the notion of the distance between two geometric shapes.
+"""
 function hausdorff(P::Polygon,Q::Polygon)
     d1 = dirHausdorff(P,Q)
     d2 = dirHausdorff(Q,P)
