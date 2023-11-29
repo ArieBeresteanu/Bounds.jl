@@ -300,6 +300,22 @@ end
 
 # 2. X is assumed to be a matrix of covariates and a single coordinate is specified
 
+"""
+    projection(yl::Vector{<:Real}, yu::Vector{<:Real}, x::Matrix{<:Real}, cord::Int64)
+
+Compute the projection bounds for a specific column (indicated by `cord`) of the matrix `x`, considering the lower and upper bounds `yl` and `yu`.
+
+This function operates on the column specified by `cord` in matrix `x`. It first isolates this column, replaces it with a vector of ones in a copy of `x`, and then computes a prediction vector based on the modified matrix. The function then calculates the residual vector and subsequently computes its projection bounds using the `yl` and `yu` vectors.
+
+# Arguments
+- `yl::Vector{<:Real}`: A vector of lower bounds.
+- `yu::Vector{<:Real}`: A vector of upper bounds.
+- `x::Matrix{<:Real}`: The matrix for which the projection is calculated.
+- `cord::Int64`: The column index in `x` for which the projection bounds are computed.
+
+# Returns
+- `Vector{Real}`: A 2-element vector containing the lower and upper projection bounds for the specified column in `x`.
+"""
 function projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cord::Int64)
     # The function assumes that the matrix x does not contain a 1 Vector
     our_x = x[:,cord] #taking out the coordinate of interest
@@ -313,6 +329,22 @@ end
 
 # 3. X is assumed to be a matrix of covariates and a vector of coordinates is specified
 
+"""
+    projection(yl::Vector{<:Real}, yu::Vector{<:Real}, x::Matrix{<:Real}, cords::Vector{Int64})
+
+Calculate the projection bounds for specific columns of the matrix `x`, identified by the indices in `cords`, using the lower and upper bounds `yl` and `yu`.
+
+This function iterates over the column indices provided in `cords`. For each column index, it isolates the corresponding column from `x`, creates a modified version of `x` where this column is replaced with a vector of ones, and then computes a prediction vector. The function calculates the residual for this column and then computes its projection bounds using `yl` and `yu`.
+
+# Arguments
+- `yl::Vector{<:Real}`: A vector of lower bounds.
+- `yu::Vector{<:Real}`: A vector of upper bounds.
+- `x::Matrix{<:Real}`: The matrix for which projections are calculated.
+- `cords::Vector{Int64}`: A vector of column indices in `x` for which the projection bounds are computed.
+
+# Returns
+- `Vector{Vector{Real}}`: A vector of 2-element vectors, each containing the lower and upper projection bounds for the specified columns in `x`.
+"""
 function projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real},cords::Vector{Int64})
     # The function assumes that the matrix x does not contain a 1 Vector
 	bounds = []
@@ -334,8 +366,6 @@ end
 """
     projection(yl::Vector{<:Real},yu::Vector{<:Real},x::Matrix{<:Real})
 
-
-    projection(yl::Vector{<:Real}, yu::Vector{<:Real}, x::Matrix{<:Real})
 
 Calculate the projection bounds for each column of `x`, using lower and upper bounds `yl` and `yu`.
 
@@ -377,7 +407,7 @@ Calculate the projection bound for the column `x` of DataFrame `df`, using the c
 - `x::Symbol`: Symbol representing the column name for which projection is calculated.
 
 # Returns
-- Projection bound for the specified column.
+- Projection bound for each column in `x`.
 """
 function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol)
 	y_l = copy(df[!,yl])
@@ -387,6 +417,20 @@ function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Symbol)
 	return bound
 end
 
+"""
+    projection(df::DataFrame, yl::Symbol, yu::Symbol, x::Symbol)
+
+Calculate the projection bound for the column `x` of DataFrame `df`, using the columns `yl` and `yu` as bounds.
+
+# Arguments
+- `df::DataFrame`: DataFrame containing the data.
+- `yl::Symbol`: Symbol representing the column name for lower bounds.
+- `yu::Symbol`: Symbol representing the column name for upper bounds.
+- `x::Symbol`: Symbol representing the column name for which projection is calculated.
+
+# Returns
+- Projection bound for each column in `x`.
+"""
 function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol})
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
@@ -395,6 +439,20 @@ function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol})
 	return bounds
 end
 
+"""
+    projection(df::DataFrame, yl::Symbol, yu::Symbol, x::Symbol)
+
+Calculate the projection bound for the column `x` of DataFrame `df`, using the columns `yl` and `yu` as bounds.
+
+# Arguments
+- `df::DataFrame`: DataFrame containing the data.
+- `yl::Symbol`: Symbol representing the column name for lower bounds.
+- `yu::Symbol`: Symbol representing the column name for upper bounds.
+- `x::Symbol`: Symbol representing the column name for which projection is calculated.
+
+# Returns
+- Projection bound for a specific coordinate.
+"""
 function projection(df::DataFrame, yl::Symbol,yu::Symbol,x::Vector{Symbol},cord::Int64)
 	y_l = copy(df[!,yl])
 	y_u = copy(df[!,yu])
@@ -405,7 +463,32 @@ end
 
 ###################### End of projection functions ######################################
 
+"""
+    oneDproj(yl::Vector{<:Real}, yu::Vector{<:Real}, x::Vector{<:Real}; 
+             options::Options=default_options, CI=true, 
+             H0::Union{Vector{<:Real}, Nothing}=nothing)
 
+Compute the one-dimensional (1D) projection of the identification set on a specific dimension of the explanatory variable `x`. The function uses lower and upper bounds `yl` and `yu`, and can optionally perform bootstrap iterations for confidence interval estimation and hypothesis testing.
+
+# Arguments
+- `yl::Vector{<:Real}`: A vector of lower bounds.
+- `yu::Vector{<:Real}`: A vector of upper bounds.
+- `x::Vector{<:Real}`: The explanatory variable vector.
+
+# Optional Arguments
+- `options::Options`: Configuration options for the bootstrap iterations and other parameters (defaults to `default_options`).
+- `CI::Bool`: A boolean to indicate whether to compute confidence intervals (defaults to `true`).
+- `H0::Union{Vector{<:Real}, Nothing}`: A vector for hypothesis testing or `nothing` if not applicable.
+
+# Returns
+- `Results`: An object containing the computed bounds, optional hypothesis test results, and confidence intervals if requested.
+
+# Details
+The function performs the following steps:
+1. Compute bounds using the `projection` function.
+2. If `CI` is true, perform bootstrap iterations to estimate confidence intervals and, if provided, test against the hypothesis `H0`.
+3. Return the results including point estimates, confidence intervals, and test statistics.
+"""
 function oneDproj(yl::Vector{<:Real},
 			  yu::Vector{<:Real},
 			  x::Vector{<:Real};
@@ -443,7 +526,7 @@ function oneDproj(yl::Vector{<:Real},
 			x_b  = x[indx]
 			bound_b = vec(projection(yl_b,yu_b,x_b))
 			r_H[i] = sqrt_n * HdistInterval(bound_b,bound)
-			r_dH[i] = sqrt_n * dHdistInterval(bound_b,bound)
+			r_dH[i] = yqrt_n * dHdistInterval(bound_b,bound)
 		end
 
 		sort!(r_H)
